@@ -94,6 +94,7 @@ reg [2:0] state, n_state;
 reg [3:0] cnt_d0, cnt_d1, n_cnt_d0, n_cnt_d1;
 wire [3:0] score0, score1;
 wire en_cnt, dis_score, en_goal;
+reg cnt_start;
 
 always@ (posedge clk) begin
     state <= n_state;
@@ -121,7 +122,7 @@ always@(*) begin
 end
 assign dis_score = (state == `play || state == `finish)? 1'b1 : 1'b0;
 assign en_goal = (state == `play && goal == 1'b1)? 1'b1 : 1'b0;
-counter one_sec(.clk(clk), .start(start), .out(en_cnt));
+counter one_sec(.clk(clk), .start(cnt_start), .out(en_cnt));
 
 score_counter sc(.clk(clk), .goal(en_goal), .dis_score(dis_score), .score0(score0), .score1(score1));
 
@@ -129,20 +130,24 @@ always@(*) begin
     if(rst == 1'b1) begin
         n_cnt_d0 = 4'd1;
         n_cnt_d1 = 4'd0;
+        cnt_start = 1'b1;
     end
     else begin
         if(start == 1'b1) begin
             n_cnt_d0 = 4'd3;
             n_cnt_d1 = 4'd0;
+            cnt_start = 1'b1;
         end
         else begin
             if(en_cnt == 1'b1) begin
                 n_cnt_d0 = (cnt_d0 == 4'd0)? 4'd9 : cnt_d0 - 1;
                 n_cnt_d1 = (cnt_d0 == 4'd0)? cnt_d1 - 1 : cnt_d1;
+                cnt_start = 1'b1;
             end
             else begin
                 n_cnt_d0 = cnt_d0;
-                n_cnt_d1 = cnt_d1;           
+                n_cnt_d1 = cnt_d1;
+                cnt_start = 1'b0;    
             end
         end
     end
@@ -272,7 +277,7 @@ always@(posedge clk) begin
     end
 end
 assign next_cnt = (cnt == 32'd0)? 32'd0 : cnt - 32'd1;
-assign out = (cnt == 32'd0)? 1'b0 : 1'b1; 
+assign out = (cnt == 32'd0)? 1'b1 : 1'b0; 
 
 endmodule
 
