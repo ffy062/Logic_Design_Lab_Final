@@ -35,15 +35,20 @@ input clk, rst, goal, start;
 output [6:0] seg;
 output [3:0] an;
 
-wire fsmclk, dclk, ssclk, goal_d, goal_o, goal_e; 
-wire [3:0]score0, score1, num;
+wire fsmclk, dclk, ssclk;
+wire goal_d, goal_o, rst_o, start_d, start_o; 
+wire [3:0] dis0, dis1, dis2, dis3, num;
 
 clock1Hz clk1s(clk, rst, fsmclk);
 clock100Hz clkde(clk, rst, dclk);
 clk_7seg clkss(clk, rst, ssclk);
-debounce de0(dclk, rst, ~goal, goal_d);
-one_pause op0(clk, goal_d, goal_o);
-s_segment ss(ssclk, rst, score0, score1, num, an);
+one_pause op_r(clk, rst, rst_o);
+debounce de_s(dclk, rst, start, start_d);
+one_pause op_s(clk, start_d, start_o);
+debounce de_g(dclk, rst, ~goal, goal_d);
+one_pause op_g(clk, goal_d, goal_o);
+fsm basket(clk, rst_o, start_o, goal_o, dis0, dis1, dis2, dis3);
+s_segment ss(ssclk, rst, dis0, dis1, dis2, dis3, num, an);
 sevensegment ss_d(num, seg);
 
 
@@ -53,13 +58,13 @@ endmodule
 
 // finite state machine and score scounter
 
-module score_counter(clk, rst, goal, score0, score1);
-input clk, rst, goal;
+module score_counter(clk, goal, dis_score, score0, score1);
+input clk, goal, dis_score;
 output reg [3:0] score0, score1;
 reg [3:0] next_score0, next_score1;
 
-always@(posedge clk, posedge rst) begin
-    if(rst == 1'b1) begin
+always@(posedge clk) begin
+    if(dis_score == 1'b0) begin
         score0 <= 4'd0;
         score1 <= 4'd0;
     end
@@ -82,16 +87,16 @@ end
 
 endmodule
 
-module fsm(clk, cntclk, rst, start, en_score, dig);
-input clk, cntclk, rst, start;
-output en_score;
-output reg [3:0] dig;
+module fsm(clk, rst, start, goal, dig0, dig1, dig2, dig3);
+input clk, rst, start, goal;
+output reg [3:0] dig0, dig1, dig2, dig3;
 reg [2:0] state, n_state;
 reg [3:0] cnt_d0, cnt_d1, n_cnt_d0, n_cnt_d1;
-wire en_cnt;
+wire [3:0] score0, score1;
+wire en_cnt, dis_score, en_goal;
 
 always@ (posedge clk) begin
-    state <= next_state;
+    state <= n_state;
 end
 
 always@ (posedge clk) begin
@@ -110,17 +115,20 @@ always@(*) begin
             `b_play: n_state = (cnt_d0 == 4'd0)? `play : `b_play;
             `play: n_state = (cnt_d1 == 4'd0 && cnt_d0 == 4'd0)? `finish : `play;
             `finish: n_state = (start == 1'b1)? `b_play : `finish;
+            default: n_state = `rst;
         endcase
     end
 end
+assign dis_score = (state == `play || state == `finish)? 1'b1 : 1'b0;
+assign en_goal = (state == `play && goal == 1'b1)? 1'b1 : 1'b0;
+counter one_sec(.clk(clk), .start(start), .out(en_cnt));
 
-counter one_sec(.clk(clk), );
+score_counter sc(.clk(clk), .goal(en_goal), .dis_score(dis_score), .score0(score0), .score1(score1));
 
 always@(*) begin
     if(rst == 1'b1) begin
         n_cnt_d0 = 4'd1;
         n_cnt_d1 = 4'd0;
-
     end
     else begin
         if(start == 1'b1) begin
@@ -129,7 +137,7 @@ always@(*) begin
         end
         else begin
             if(en_cnt == 1'b1) begin
-                n_cnt_d0 = (cnt_d0 == 4'd0)? 4'd9 :cnt_d0 - 1;
+                n_cnt_d0 = (cnt_d0 == 4'd0)? 4'd9 : cnt_d0 - 1;
                 n_cnt_d1 = (cnt_d0 == 4'd0)? cnt_d1 - 1 : cnt_d1;
             end
             else begin
@@ -140,8 +148,47 @@ always@(*) begin
     end
 end
 
+always@(*) begin
+    case(state)
+        `rst: begin
+            dig0 = 4'd10;
+            dig1 = 4'd10;
+            dig2 = 4'd10;
+            dig3 = 4'd10;
+        end
+        `b_rst: begin
+                dig0 = 4'd8;
+                dig1 = 4'd8;
+                dig2 = 4'd8;
+                dig3 = 4'd8;
+        end
+        `b_play: begin
+                dig0 = 4'd11;
+                dig1 = 4'd11;
+                dig2 = cnt_d0;
+                dig3 = cnt_d1;
+        end
+        `play: begin
+                dig0 = score0;
+                dig1 = score1;
+                dig2 = cnt_d0;
+                dig3 = cnt_d1;
+        end
+        `finish: begin
+                dig0 = score0;
+                dig1 = score1;
+                dig2 = 4'd10;
+                dig3 = 4'd10;
+        end
+        default: begin
+            dig0 = 4'd0;
+            dig1 = 4'd0;
+            dig2 = 4'd10;
+            dig3 = 4'd10;
+        end
+    endcase
+end
 
-assign en_score = (state == `play)? 1'b1 : 1'b0;
 
 endmodule
 
@@ -150,9 +197,9 @@ endmodule
 
 // seven segment and display
 
-module s_segment(clk, rst, a, b, out, an);
+module s_segment(clk, rst, a0, a1, a2, a3, out, an);
 input clk, rst;
-input [3:0] a, b;
+input [3:0] a0, a1, a2, a3;
 output reg [3:0] out;
 output reg [3:0] an;
 wire [3:0] next_an;
@@ -166,15 +213,16 @@ always@(posedge clk) begin
     end
 end
 
-assign next_an = (an == 4'b1110)? 4'b1101 : 4'b1110;
+assign next_an = {an[2:0], an[3]};
 
 always@(*) begin
-    if(an == 4'b1110) begin
-        out <= a;
-    end
-    else begin
-        out <= b;
-    end
+    case(an)
+        4'b1110: out = a0;
+        4'b1101: out = a1;
+        4'b1011: out = a2;
+        4'b0111: out = a3;
+        default: out = 4'd8; 
+    endcase
 end
 
 endmodule 
@@ -185,18 +233,19 @@ output reg[6:0] D_ss;
 
 always@(*) begin
     case (num)
-        4'd0: D_ss = 7'b1000000;
-        4'd1: D_ss = 7'b1111001;
-        4'd2: D_ss = 7'b0100100;
-        4'd3: D_ss = 7'b0110000;
-        4'd4: D_ss = 7'b0011001;
-        4'd5: D_ss = 7'b0010010;
-        4'd6: D_ss = 7'b0000010;
-        4'd7: D_ss = 7'b1111000;
-        4'd8: D_ss = 7'b0000000;
-        4'd9: D_ss = 7'b0010000;
-        4'd10: D_ss = 7'b0111111;
-        default: D_ss = 7'b0000000;
+        4'd0: D_ss = 7'b1000000; // 0
+        4'd1: D_ss = 7'b1111001; // 1
+        4'd2: D_ss = 7'b0100100; // 2
+        4'd3: D_ss = 7'b0110000; // 3
+        4'd4: D_ss = 7'b0011001; // 4 
+        4'd5: D_ss = 7'b0010010; // 5
+        4'd6: D_ss = 7'b0000010; // 6
+        4'd7: D_ss = 7'b1111000; // 7
+        4'd8: D_ss = 7'b0000000; // 8
+        4'd9: D_ss = 7'b0010000; // 9
+        4'd10: D_ss = 7'b0111111; // -
+        4'd11: D_ss = 7'd0000000; // empty
+        default: D_ss = 7'b0000000; // 8
     endcase
 end
 
@@ -215,7 +264,7 @@ wire [31:0]next_cnt;
 // 32'd99999999 1sec
 
 always@(posedge clk) begin
-    if(start == 1'b1) begin
+    if(start == 1'b1 && cnt == 32'd0) begin
         cnt <= n;
     end
     else begin
