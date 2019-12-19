@@ -19,11 +19,11 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
-`define 0 rst 
-`define 1 b_rst
-`define 2 b_play
-`define 3 play
-`define 4 finish 
+`define rst 3'd0 
+`define b_rst 3'd1
+`define b_play 3'd2
+`define play 3'd3
+`define finish 3'd4 
 
 
 
@@ -82,14 +82,66 @@ end
 
 endmodule
 
-module fsm(clk, rst, start, en_score);
-input clk, rst, start;
+module fsm(clk, cntclk, rst, start, en_score, dig);
+input clk, cntclk, rst, start;
 output en_score;
-reg [2:0] state, next_state;
+output reg [3:0] dig;
+reg [2:0] state, n_state;
+reg [3:0] cnt_d0, cnt_d1, n_cnt_d0, n_cnt_d1;
+wire en_cnt;
 
-always@(posedge clk) begin
+always@ (posedge clk) begin
     state <= next_state;
 end
+
+always@ (posedge clk) begin
+    cnt_d0 <= n_cnt_d0;
+    cnt_d1 <= n_cnt_d1;
+end
+
+always@(*) begin
+    if(rst == 1'b1) begin
+        n_state = `b_rst;
+    end
+    else begin
+        case(state)
+            `rst: n_state = (start == 1'b1)? `b_play : `rst;
+            `b_rst: n_state = (cnt_d0 == 4'd0)? `rst : `b_rst;
+            `b_play: n_state = (cnt_d0 == 4'd0)? `play : `b_play;
+            `play: n_state = (cnt_d1 == 4'd0 && cnt_d0 == 4'd0)? `finish : `play;
+            `finish: n_state = (start == 1'b1)? `b_play : `finish;
+        endcase
+    end
+end
+
+counter one_sec(.clk(clk), );
+
+always@(*) begin
+    if(rst == 1'b1) begin
+        n_cnt_d0 = 4'd1;
+        n_cnt_d1 = 4'd0;
+
+    end
+    else begin
+        if(start == 1'b1) begin
+            n_cnt_d0 = 4'd3;
+            n_cnt_d1 = 4'd0;
+        end
+        else begin
+            if(en_cnt == 1'b1) begin
+                n_cnt_d0 = (cnt_d0 == 4'd0)? 4'd9 :cnt_d0 - 1;
+                n_cnt_d1 = (cnt_d0 == 4'd0)? cnt_d1 - 1 : cnt_d1;
+            end
+            else begin
+                n_cnt_d0 = cnt_d0;
+                n_cnt_d1 = cnt_d1;           
+            end
+        end
+    end
+end
+
+
+assign en_score = (state == `play)? 1'b1 : 1'b0;
 
 endmodule
 
@@ -154,23 +206,24 @@ endmodule
 
 // clock and counter
 
-module counter1sec(clk, rst, out);
-input clk, rst;
+module counter(clk, start, out);
+input clk, start;
 output out;
-reg [30:0] cnt;
-wire [30:0]next_cnt;
-// 31'd99999999
+parameter n = 99999999;
+reg [31:0] cnt;
+wire [31:0]next_cnt;
+// 32'd99999999 1sec
 
 always@(posedge clk) begin
-    if(rst == 1'b1) begin
-        cnt <= 31'd99999999;
+    if(start == 1'b1) begin
+        cnt <= n;
     end
     else begin
         cnt <= next_cnt;
     end
 end
-assign next_cnt = (cnt == 31'd0)? 31'd0 : cnt - 31'd1;
-assign out = (cnt == 31'd0)? 1'b0 : 1'b1; 
+assign next_cnt = (cnt == 32'd0)? 32'd0 : cnt - 32'd1;
+assign out = (cnt == 32'd0)? 1'b0 : 1'b1; 
 
 endmodule
 
