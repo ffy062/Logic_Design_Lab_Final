@@ -44,8 +44,8 @@ create_clock -period 10.000 -name sys_clk_pin -waveform {0.000 5.000} -add [get_
 
 
 ## LEDs
-#set_property PACKAGE_PIN U16 [get_ports {goal1_1}]
-#set_property IOSTANDARD LVCMOS33 [get_ports {goal1_1}]
+#set_property PACKAGE_PIN U16 [get_ports {led[0]}]
+#set_property IOSTANDARD LVCMOS33 [get_ports {led[0]}]
 #set_property PACKAGE_PIN E19 [get_ports {led[1]}]
 #set_property IOSTANDARD LVCMOS33 [get_ports {led[1]}]
 #set_property PACKAGE_PIN U19 [get_ports {led[2]}]
@@ -114,8 +114,8 @@ set_property PACKAGE_PIN T18 [get_ports rst]
 set_property IOSTANDARD LVCMOS33 [get_ports rst]
 #set_property PACKAGE_PIN W19 [get_ports btnL]
 #set_property IOSTANDARD LVCMOS33 [get_ports btnL]
-#set_property PACKAGE_PIN T17 [get_ports btnR]
-#set_property IOSTANDARD LVCMOS33 [get_ports btnR]
+set_property PACKAGE_PIN T17 [get_ports stop]
+set_property IOSTANDARD LVCMOS33 [get_ports stop]
 #set_property PACKAGE_PIN U17 [get_ports rst]
 #set_property IOSTANDARD LVCMOS33 [get_ports rst]
 
@@ -149,7 +149,7 @@ set_property IOSTANDARD LVCMOS33 [get_ports rst]
 
 
 
-##Pmod Header JB
+##Pmod Header JB for FR sensor
 ##Sch name = JB1
 #set_property PACKAGE_PIN A14 [get_ports {JB[0]}]
 #set_property IOSTANDARD LVCMOS33 [get_ports {JB[0]}]
@@ -172,24 +172,25 @@ set_property IOSTANDARD LVCMOS33 [get_ports rst]
 #set_property PACKAGE_PIN C15 [get_ports {JB[6]}]
 #set_property IOSTANDARD LVCMOS33 [get_ports {JB[6]}]
 ##Sch name = JB10
-#set_property PACKAGE_PIN C16 [get_ports {JB[7]}]
-#set_property IOSTANDARD LVCMOS33 [get_ports {JB[7]}]
+set_property PACKAGE_PIN C16 [get_ports goal]
+set_property IOSTANDARD LVCMOS33 [get_ports goal]
 
 
 
-##Pmod Header JC
+
+##Pmod Header JC  for speacker 
 ##Sch name = JC1
-#set_property PACKAGE_PIN K17 [get_ports {JC[0]}]
-#set_property IOSTANDARD LVCMOS33 [get_ports {JC[0]}]
+set_property PACKAGE_PIN K17 [get_ports {pmod_1}]
+set_property IOSTANDARD LVCMOS33 [get_ports {pmod_1}]
 ##Sch name = JC2
-#set_property PACKAGE_PIN M18 [get_ports {JC[1]}]
-#set_property IOSTANDARD LVCMOS33 [get_ports {JC[1]}]
+set_property PACKAGE_PIN M18 [get_ports {[pmod_2]}]
+set_property IOSTANDARD LVCMOS33 [get_ports {pmod_2}]
 ##Sch name = JC3
 #set_property PACKAGE_PIN N17 [get_ports {JC[2]}]
 #set_property IOSTANDARD LVCMOS33 [get_ports {JC[2]}]
 ##Sch name = JC4
-#set_property PACKAGE_PIN P18 [get_ports {JC[3]}]
-#set_property IOSTANDARD LVCMOS33 [get_ports {JC[3]}]
+set_property PACKAGE_PIN P18 [get_ports {pmod_4}]
+set_property IOSTANDARD LVCMOS33 [get_ports {pmod_4}]
 ##Sch name = JC7
 #set_property PACKAGE_PIN L17 [get_ports {JC[4]}]
 #set_property IOSTANDARD LVCMOS33 [get_ports {JC[4]}]
@@ -300,8 +301,3 @@ set_property IOSTANDARD LVCMOS33 [get_ports rst]
 
 #set_property CONFIG_VOLTAGE 3.3 [current_design]
 #set_property CFGBVS VCCO [current_design]
-
-
-## input and output through jump cable
-set_property PACKAGE_PIN C16 [get_ports goal]
-set_property IOSTANDARD LVCMOS33 [get_ports goal]
