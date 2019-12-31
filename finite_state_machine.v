@@ -7,44 +7,15 @@
 `define finish 3'd4 
 
 
-module score_counter(clk, goal, dis_score, score0, score1);
-input clk, goal, dis_score;
-output reg [3:0] score0, score1;
-reg [3:0] next_score0, next_score1;
 
-always@(posedge clk) begin
-    if(dis_score == 1'b0) begin
-        score0 <= 4'd0;
-        score1 <= 4'd0;
-    end
-    else begin
-        score0 <= next_score0;
-        score1 <= next_score1;
-    end
-end
-
-always @ (*) begin
-    if(goal == 1'b1) begin
-        next_score0 = (score0 == 4'd9)? 4'd0 : score0 + 4'd1;
-        next_score1 = (score0 == 4'd9)? score1 + 4'd1 : score1;
-    end
-    else begin
-        next_score0 = score0;
-        next_score1 = score1;
-    end
-end
-
-endmodule
-
-
-
-module fsm(clk, rst, start, goal, stop, dig0, dig1, dig2, dig3);
+module fsm(clk, rst, start, goal, stop, dig0, dig1, dig2, dig3, pmod1, pmod2, pmod4);
 input clk, rst, start, goal, stop;
 output reg [3:0] dig0, dig1, dig2, dig3;
+output pmod1, pmod2, pmod4;
 reg [2:0] state, n_state;
 reg [3:0] cnt_d0, cnt_d1, n_cnt_d0, n_cnt_d1;
 wire [3:0] score0, score1;
-wire en_cnt, dis_score, en_goal;
+wire en_cnt, en_goal, cnt_play;
 reg cnt_start, sp;
 
 always@ (posedge clk) begin
@@ -80,11 +51,14 @@ always@(posedge clk) begin
         sp <= (stop == 1'b1 && state == `play)? ~sp : sp;
     end
 end
+
 assign dis_score = (state == `play || state == `finish)? 1'b1 : 1'b0;
 assign en_goal = (state == `play && goal == 1'b1 && sp == 1'b0)? 1'b1 : 1'b0;
+assign cnt_play = (cnt_start == 1'b1 && n_state == `b_play)? 1'b1 : 1'b0;
 
 counter one_sec(.clk(clk), .start(cnt_start), .stop(sp), .out(en_cnt));
-score_counter sc(.clk(clk), .goal(en_goal), .dis_score(dis_score), .score0(score0), .score1(score1));
+score_and_display sad(.clk(clk), .goal(en_goal), .dis_score(dis_score), .score0(score0), .score1(score1));
+audio_top audio(.clk(clk), .rst(rst), .goal(en_goal), .cnt(cnt_play), .pmod_1(pmod1), .pmod_2(pmod2), .pmod_4(pmod4));
 
 always@(*) begin
     if(rst == 1'b1) begin

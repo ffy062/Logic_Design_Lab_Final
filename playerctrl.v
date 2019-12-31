@@ -1,11 +1,11 @@
-module playctrl (clk, play, loop, rst, ibeat);
-input clk, rst, loop, rst;
-output reg [7:0] beat;
-parameter BEATLEAGTH = 4;
+module playctrl #(parameter BEATLEAGTH = 4) (clk, play, loop, rst, ibeat);
+input clk, rst, loop, play;
+output reg [7:0] ibeat;
 
-always @(posedge clk, posedge rst) begin
+
+always @(posedge clk, posedge rst, posedge play) begin
 	if (rst)
-		ibeat <= 4;
+		ibeat <= BEATLEAGTH;
 	else begin
         if(play == 1'b1) begin
             ibeat <= 0;

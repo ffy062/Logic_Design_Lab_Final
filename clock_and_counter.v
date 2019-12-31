@@ -10,7 +10,7 @@ wire [31:0]next_cnt;
 // 32'd99999999 1sec
 
 always@(posedge clk) begin
-    if(start == 1'b1 && cnt == 32'd0) begin
+    if(start == 1'b1) begin
         cnt <= n;
     end
     else begin

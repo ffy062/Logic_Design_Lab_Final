@@ -50,7 +50,7 @@ one_pause op_g(clk, goal_d, goal_o);
 debounce de_p(dclk, stop, stop_d);
 one_pause op_p(clk, stop_d, stop_o);
 
-fsm basket(clk, rst_l, start_o, goal_o, stop_o, dis0, dis1, dis2, dis3);
+fsm basket(clk, rst_l, start_o, goal_o, stop_o, dis0, dis1, dis2, dis3, pmod_1, pmod_2, pmod_4);
 
 s_segment ss(ssclk, rst_o, dis0, dis1, dis2, dis3, num, an);
 sevensegment ss_d(num, seg);
