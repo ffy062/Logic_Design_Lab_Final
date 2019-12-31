@@ -3,7 +3,7 @@
 // Company: 
 // Engineer: 
 // 
-// Create Date: 2019/12/26 13:18:32
+// Create Date: 2019/12/28 16:58:47
 // Design Name: 
 // Module Name: audio_top
 // Project Name: 
@@ -20,21 +20,18 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module audio_top(clk, rst, play, loop, pmod_1, pmod_2, pmod_4);
-input clk, rst, play, loop;
+module audio_top(clk, rst, goal, cnt, pmod_1, pmod_2, pmod_4);
+input clk, rst, goal, cnt;
 output pmod_1, pmod_2, pmod_4;
 
-parameter beat_freq = 23'd8; // one beat  = 1/8 sec
-parameter duty = 10'd512; // duty cycle = 50 %
+wire [1:0] p1, p2, p4;
 
-wire sp_clk;
-wire [31:0]freq;
-wire [7:0] beatnum;
 
-PWM_gen speedgen(.clk(clk), .rst(rst), .freq(beat_freq), .duty(duty), .pwm(sp_clk));
-playctrl(.clk(clk), .play(play), .loop(loop), .rst(rst), .ibeat(beatnum));
-goal_music music0(.beatnum(beatnum), .tone(freq));
-PWM_gen tonegen(.clk(clk), .rst(rst), .freq(freq), .duty(duty), .pwm(pmod_1));
+goal_audio goal_s(.clk(clk), .rst(rst), .play(goal), .loop(1'b0), .pmod_1(p1[0]), .pmod_2(p2[0]), .pmod_4(p4[0]));
+cnt_audio cnt_s(.clk(clk), .rst(rst), .play(cnt), .loop(1'b0), .pmod_1(p1[1]), .pmod_2(p2[1]), .pmod_4(p4[1]));
 
+assign pmod_1 = | p1[1:0];
+assign pmod_2 = | p2[1:0];
+assign pmod_4 = | p4[1:0];
 
 endmodule
