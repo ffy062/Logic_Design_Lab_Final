@@ -23,11 +23,20 @@
 
 // top module
 
-module top(clk, rst, start, stop, goal, seg, an, pmod_1, pmod_2, pmod_4);
+module top(
+    clk, 
+    rst, start, stop, 
+    goal,
+    seg, an, 
+    pmod_1, pmod_2, pmod_4,
+    vgaRed, vgaGreen, vgaBlue, hsync, vsync
+    );
 input clk, rst, goal, start, stop;
 output [6:0] seg;
 output [3:0] an;
 output pmod_1, pmod_2, pmod_4;
+output [3:0] vgaRed, vgaGreen, vgaBlue;
+output hsync, vsync;
 
 wire fsmclk, dclk, ssclk;
 wire goal_d, goal_o, rst_o, rst_l, start_d, start_o, stop_d, stop_o; 
@@ -50,10 +59,20 @@ one_pause op_g(clk, goal_d, goal_o);
 debounce de_p(dclk, stop, stop_d);
 one_pause op_p(clk, stop_d, stop_o);
 
-fsm basket(clk, rst_l, start_o, goal_o, stop_o, dis0, dis1, dis2, dis3, pmod_1, pmod_2, pmod_4);
+fsm basket(
+    clk, rst_l, start_o, stop_o, goal_o, 
+    dis0, dis1, dis2, dis3, pmod_1, pmod_2, pmod_4
+    );
 
 s_segment ss(ssclk, rst_o, dis0, dis1, dis2, dis3, num, an);
 sevensegment ss_d(num, seg);
+
+VGA_top vga_display(
+    .clk(clk), .rst(rst_l), .score0(dis0), .score1(dis1), 
+    .vgaRed(vgaRed), .vgaGreen(vgaGreen), .vgaBlue(vgaBlue), .hsync(hsync), .vsync(vsync)
+    );
+
+
 
 
 endmodule
