@@ -8,10 +8,18 @@
 
 
 
-module fsm(clk, rst, start, goal, stop, dig0, dig1, dig2, dig3, pmod1, pmod2, pmod4);
+module fsm(
+    clk, 
+    rst, start, stop, 
+    goal, 
+    dig0, dig1, dig2, dig3, 
+    pmod1, pmod2, pmod4
+    );
+
 input clk, rst, start, goal, stop;
 output reg [3:0] dig0, dig1, dig2, dig3;
 output pmod1, pmod2, pmod4;
+
 reg [2:0] state, n_state;
 reg [3:0] cnt_d0, cnt_d1, n_cnt_d0, n_cnt_d1;
 wire [3:0] score0, score1;
