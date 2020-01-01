@@ -31,23 +31,28 @@ module vga_pixel_gen(
     input [3:0] score0, score1;
     output reg [3:0] vgaRed, vgaGreen, vgaBlue;
 
-    wire [9:0] DH1, DH5, DV1, DV3, DRV, DRH;
+    wire [9:0] DH1, DH5, DV1, DV3, DRV, DRH, DHT, DVT;
     wire [11:0] seg [6:0];
 
     assign DH1 = 10;
     assign DH3 = 30;
     assign DV1 = 10;
     assign DV3 = 30;
+    assign DHT = 50;
+    assign DVT = 90;
     assign DRV = 190;
     assign DRH = 340;
 
-    vga_num2pixel n2p_r(.num(score0), .seg0(seg[0]), .seg1(seg[1]), .seg2(seg[2]), .seg3(seg[3]), .seg4(seg[4]), .seg5(seg[5]), .seg6(seg[6]));
+    vga_num2pixel n2p_r(
+        .num(score0), .seg0(seg[0]),.seg1(seg[1]), .seg2(seg[2]),
+        .seg3(seg[3]), .seg4(seg[4]), .seg5(seg[5]), .seg6(seg[6])
+        );
     
     always @(*) begin
         if(!valid)
             {vgaRed, vgaGreen, vgaBlue} = 12'h0;
         else begin
-            if(v_cnt < DRV) begin
+            if(h_cnt < DRH) begin
                 case(score0)
                     4'd0: {vgaRed, vgaGreen, vgaBlue} = 12'hfff;
                     4'd1: {vgaRed, vgaGreen, vgaBlue} = 12'h00f;
@@ -59,59 +64,46 @@ module vga_pixel_gen(
                     default: {vgaRed, vgaGreen, vgaBlue} = 12'h000;
                 endcase
             end
-            else if(v_cnt < DRV + DV1) begin
-                if(h_cnt > DRH && h_cnt < DRH + DH1) begin
-                    {vgaRed, vgaGreen, vgaBlue} = seg[5]; // for right digit
+            else if(h_cnt < DRH + DH1) begin
+                if(v_cnt < DRV) begin
+                     {vgaRed, vgaGreen, vgaBlue} = 12'h000;
                 end
-                else if(h_cnt > DRH + DH3 + DH1 && h_cnt < DRH + DH5) begin
-                    {vgaRed, vgaGreen, vgaBlue} = seg[1]; // for right digit
+                else if(v_cnt < DRV + DV1 + DV3) begin
+                     {vgaRed, vgaGreen, vgaBlue} = seg[5];
+                end
+                else if(v_cnt < DRV + DVT) begin
+                     {vgaRed, vgaGreen, vgaBlue} =seg[4];
                 end
                 else begin
-                    {vgaRed, vgaGreen, vgaBlue} = seg[0];
+                     {vgaRed, vgaGreen, vgaBlue} = 12'h000;
                 end
             end
-            else if(v_cnt < DRV + DV1 + DV3) begin
-                if(h_cnt > DRH && h_cnt < DRH + DH1) begin
-                    {vgaRed, vgaGreen, vgaBlue} = seg[5]; // for right digit
+            else if(h_cnt < DRH + DH1 + DH3) begin
+                if(v_cnt > DRV && v_cnt < DRV + DV1) begin
+                     {vgaRed, vgaGreen, vgaBlue} = seg[0];
                 end
-                else if(h_cnt > DRH + DH3 + DH1 && h_cnt < DRH + DH5) begin
-                    {vgaRed, vgaGreen, vgaBlue} = seg[1]; // for right digit
+                else if(v_cnt > DRV + DV1 + DV3 && v_cnt < DRV + 2*DV1 + DV3) begin
+                     {vgaRed, vgaGreen, vgaBlue} = seg[6];
+                end
+                else if(v_cnt > DRV + DVT - DV1 && v_cnt < DRV + DVT) begin
+                     {vgaRed, vgaGreen, vgaBlue} = seg[3];
                 end
                 else begin
-                    {vgaRed, vgaGreen, vgaBlue} = 12'h000;
+                     {vgaRed, vgaGreen, vgaBlue} = 12'h000;
                 end
             end
-            else if(v_cnt < DRV + 2*DV1 + DV3) begin
-                 if(h_cnt > DRH && h_cnt < DRH + DH1) begin
-                    {vgaRed, vgaGreen, vgaBlue} = seg[4]; // for right digit
+            else if(h_cnt < DRH + DH5) begin
+                if(v_cnt < DRV) begin
+                     {vgaRed, vgaGreen, vgaBlue} = 12'h000;
                 end
-                else if(h_cnt > DRH + DH3 + DH1 && h_cnt < DRH + DH5) begin
-                    {vgaRed, vgaGreen, vgaBlue} = seg[2]; // for right digit
+                else if(v_cnt < DRV + DV1 + DV3) begin
+                     {vgaRed, vgaGreen, vgaBlue} = seg[1];
                 end
-                else begin
-                    {vgaRed, vgaGreen, vgaBlue} = seg[6];
-                end
-            end
-            else if(v_cnt < DRV + 2*DV1 + 2*DV1 + 2*DV3) begin
-                if(h_cnt > DRH && h_cnt < DRH+DH1) begin
-                    {vgaRed, vgaGreen, vgaBlue} = seg[4]; // for right digit
-                end
-                else if(h_cnt > DRH + DH3 + DH1 && h_cnt < DRH + DH5) begin
-                    {vgaRed, vgaGreen, vgaBlue} = seg[2]; // for right digit
+                else if(v_cnt < DRV + DVT) begin
+                     {vgaRed, vgaGreen, vgaBlue} =seg[2];
                 end
                 else begin
-                    {vgaRed, vgaGreen, vgaBlue} = 12'h000;
-                end
-            end
-            else if(v_cnt < DRV + 3*DV1 + 2*DV3) begin
-                if(h_cnt > DRH && h_cnt < DRH+DH1) begin
-                    {vgaRed, vgaGreen, vgaBlue} = seg[5]; // for right digit
-                end
-                else if(h_cnt > DRH + DH3 + DH1 && h_cnt < DRH + DH5) begin
-                    {vgaRed, vgaGreen, vgaBlue} = seg[1]; // for right digit
-                end
-                else begin
-                    {vgaRed, vgaGreen, vgaBlue} = seg[3];
+                     {vgaRed, vgaGreen, vgaBlue} = 12'h000;
                 end
             end
             else begin
