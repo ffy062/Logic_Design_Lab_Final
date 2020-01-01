@@ -45,11 +45,20 @@ module vga_pixel_gen(
             {vgaRed, vgaGreen, vgaBlue} = 12'h0;
         else begin
             if(v_cnt < DRV) begin
-                {vgaRed, vgaGreen, vgaBlue} = 12'h000;
+                case(score0)
+                    4'd0: {vgaRed, vgaGreen, vgaBlue} = 12'hfff;
+                    4'd1: {vgaRed, vgaGreen, vgaBlue} = 12'h00f;
+                    4'd2: {vgaRed, vgaGreen, vgaBlue} = 12'h0f0;
+                    4'd3: {vgaRed, vgaGreen, vgaBlue} = 12'hf00;
+                    4'd4: {vgaRed, vgaGreen, vgaBlue} = 12'h0ff;
+                    4'd5: {vgaRed, vgaGreen, vgaBlue} = 12'hf0f;
+                    4'd6: {vgaRed, vgaGreen, vgaBlue} = 12'hff0;
+                    default: {vgaRed, vgaGreen, vgaBlue} = 12'h000;
+                endcase
             end
             else if(v_cnt < DRV + DV1) begin
                 if(h_cnt > DRH && h_cnt < DRH+DH5 && score0 != 1 && score0 != 4) begin
-                    {vgaRed, vgaGreen, vgaBlue} = 12'hfff; // for  right digit
+                    {vgaRed, vgaGreen, vgaBlue} = 12'hfff; // for right digit
                 end
                 else begin
                     {vgaRed, vgaGreen, vgaBlue} = 12'h000; // background
