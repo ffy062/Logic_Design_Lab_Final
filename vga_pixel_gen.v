@@ -56,57 +56,56 @@ module vga_pixel_gen(
                     default: {vgaRed, vgaGreen, vgaBlue} = 12'h000;
                 endcase
             end
-            else begin
-                if(v_cnt < DRV + DV1) begin
-                    if(h_cnt > DRH && h_cnt < DRH+DH5 && score0 != 1 && score0 != 4) begin
+            else if(v_cnt < DRV + DV1) begin
+                if(h_cnt > DRH && h_cnt < DRH+DH5 && score0 != 1 && score0 != 4) begin
                     {vgaRed, vgaGreen, vgaBlue} = 12'hfff; // for right digit
-                    end
-                    else begin
-                    {vgaRed, vgaGreen, vgaBlue} = 12'h000; // background
-                    end
                 end
                 else begin
-                    if(v_cnt < DRV + DV1 + DV3) begin
-                        if(h_cnt > DRH && h_cnt < DRH+DH1 && score0 != 1 && score0 != 2 && score0 != 3 && score0 != 7) begin
+                    {vgaRed, vgaGreen, vgaBlue} = 12'h000; // background
+                end
+
+            end
+            else if(v_cnt < DRV + DV1 + DV3) begin
+                if(h_cnt > DRH && h_cnt < DRH+DH1 && score0 != 1 && score0 != 2 && score0 != 3 && score0 != 7) begin
+                    {vgaRed, vgaGreen, vgaBlue} = 12'hfff; // for right digit
+                end
+                else if(h_cnt > DRH+DH5-DH1 && h_cnt < DRH+DH5 && score0 != 5 && score0 != 6) begin
+                    {vgaRed, vgaGreen, vgaBlue} = 12'hfff; // for right digit
+                end
+                else begin
+                    {vgaRed, vgaGreen, vgaBlue} = 12'h000;
+                end
+            end
+            else begin
+                if(v_cnt < DRV + 2*DV1 + DV3) begin
+                    if(h_cnt > DRH && h_cnt < DRH+DH5 && score0 != 1 && score0 != 7 && score0 != 0) begin
                         {vgaRed, vgaGreen, vgaBlue} = 12'hfff; // for right digit
-                        end
-                        else if(h_cnt > DRH+DH5-DH1 && h_cnt < DRH+DH5 && score0 != 5 && score0 != 6) begin
-                        {vgaRed, vgaGreen, vgaBlue} = 12'hfff; // for right digit
-                        end
-                        else begin
-                        {vgaRed, vgaGreen, vgaBlue} = 12'h000;
-                        end
-                    end
-                    else if(v_cnt < DRV + 2*DV1 + DV3) begin
-                        if(h_cnt > DRH && h_cnt < DRH+DH5 && score0 != 1 && score0 != 7 && score0 != 0) begin
-                        {vgaRed, vgaGreen, vgaBlue} = 12'hfff; // for right digit
-                        end
-                        else begin
-                        {vgaRed, vgaGreen, vgaBlue} = 12'h000;
-                        end 
-                    end
-                    else if(v_cnt < DRV + 2*DV1 + 2*DV1 + 2*DV3) begin
-                        if(h_cnt > DRH && h_cnt < DRH+DH1 && score0 == 2 && score0 == 6 && score0 == 8 && score0 == 0) begin
-                        {vgaRed, vgaGreen, vgaBlue} = 12'hfff; // for right digit
-                        end
-                        else if(h_cnt > DRH+DH5-DH1 && h_cnt < DRH+DH5 && score0 != 2) begin
-                        {vgaRed, vgaGreen, vgaBlue} = 12'hfff; // for right digit
-                        end
-                        else begin
-                        {vgaRed, vgaGreen, vgaBlue} = 12'h000;
-                        end
-                    end
-                    else if(v_cnt < DRV + 3*DV1 + 2*DV3) begin
-                        if(h_cnt > DRH && h_cnt < DRH+DH5 && score0 != 1 && score0 != 4 && score0 != 7 && score0 != 9) begin
-                        {vgaRed, vgaGreen, vgaBlue} = 12'hfff; // for right digit
-                        end
-                        else begin
-                        {vgaRed, vgaGreen, vgaBlue} = 12'h000;
-                        end 
                     end
                     else begin
-                    {vgaRed, vgaGreen, vgaBlue} = 12'h000;
+                        {vgaRed, vgaGreen, vgaBlue} = 12'h000;
+                    end 
+                end
+                else if(v_cnt < DRV + 2*DV1 + 2*DV1 + 2*DV3) begin
+                    if(h_cnt > DRH && h_cnt < DRH+DH1 && score0 == 2 && score0 == 6 && score0 == 8 && score0 == 0) begin
+                        {vgaRed, vgaGreen, vgaBlue} = 12'hfff; // for right digit
                     end
+                    else if(h_cnt > DRH+DH5-DH1 && h_cnt < DRH+DH5 && score0 != 2) begin
+                        {vgaRed, vgaGreen, vgaBlue} = 12'hfff; // for right digit
+                    end
+                    else begin
+                        {vgaRed, vgaGreen, vgaBlue} = 12'h000;
+                    end
+                end
+                else if(v_cnt < DRV + 3*DV1 + 2*DV3) begin
+                    if(h_cnt > DRH && h_cnt < DRH+DH5 && score0 != 1 && score0 != 4 && score0 != 7 && score0 != 9) begin
+                        {vgaRed, vgaGreen, vgaBlue} = 12'hfff; // for right digit
+                    end
+                    else begin
+                        {vgaRed, vgaGreen, vgaBlue} = 12'h000;
+                    end 
+                end
+                else begin
+                    {vgaRed, vgaGreen, vgaBlue} = 12'h000;
                 end
             end
         end 
