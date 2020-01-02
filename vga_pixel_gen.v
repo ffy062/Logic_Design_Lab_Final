@@ -20,21 +20,29 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
+`define rst 3'd0 
+`define b_rst 3'd1
+`define b_play 3'd2
+`define play 3'd3
+`define finish 3'd4 
+
 module vga_pixel_gen(
     h_cnt, v_cnt, valid, vsync, hsync,
-    score0, score1,
+    state, score0, score1, cnt0,
     vgaRed, vgaGreen, vgaBlue
     );
 
     input [9:0] h_cnt, v_cnt;
     input valid, vsync, hsync;
-    input [3:0] score0, score1;
+    input [2:0] state;
+    input [3:0] score0, score1, cnt0;
     output reg [3:0] vgaRed, vgaGreen, vgaBlue;
 
     wire [9:0] DRH0, DRH1, DRH2, DRH3, DV0, DV1, DV2, DV3, DV4, DV5;
     wire [9:0] DLH0, DLH1, DLH2, DLH3;
     wire [11:0] seg_sr [8:0];
     wire [11:0] seg_sl [8:0];
+    wire [11:0] seg_cnt [8:0];
     
     assign DRH0 = 340; // right score digit 
     assign DRH1 = 350; // height: 90 width: 50 bar width: 10
@@ -62,13 +70,79 @@ module vga_pixel_gen(
         .seg3(seg_sl[3]), .seg4(seg_sl[4]), .seg5(seg_sl[5]), .seg6(seg_sl[6]),
         .seg7(seg_sl[7]), .seg8(seg_sl[8])
         );
+     vga_num2pixel n2p_sl(
+        .num(cnt0), .seg0(seg_cnt[0]),.seg1(seg_cnt[1]), .seg2(seg_cnt[2]),
+        .seg3(seg_cnt[3]), .seg4(seg_cnt[4]), .seg5(seg_cnt[5]), .seg6(seg_cnt[6]),
+        .seg7(seg_cnt[7]), .seg8(seg_cnt[8])
+        );
 
 
     always @(*) begin
         if(!valid)
             {vgaRed, vgaGreen, vgaBlue} = 12'h0;
         else begin
-            if(h_cnt < DLH0) begin
+            case(state)
+            `b_rst: begin
+                {vgaRed, vgaGreen, vgaBlue} = 12'h0;
+            end
+            `b_play: begin
+                if(h_cnt < DLH0) begin
+                    {vgaRed, vgaGreen, vgaBlue} = 12'h000;
+                end
+                else if(h_cnt < DLH1) begin
+                    if(v_cnt < DV0) begin
+                        {vgaRed, vgaGreen, vgaBlue} = 12'h000;
+                    end
+                    else if(v_cnt < DV2) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_cnt[5];
+                    end
+                    else if(v_cnt < DV3) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_cnt[8];
+                    end
+                    else if(v_cnt < DV5) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_cnt[4];
+                    end
+                    else begin
+                        {vgaRed, vgaGreen, vgaBlue} = 12'h000;
+                    end
+                end
+                else if(h_cnt < DLH2) begin
+                    if(v_cnt >= DV0 && v_cnt < DV1) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_cnt[0];
+                    end
+                    else if(v_cnt >= DV2 && v_cnt < DV3) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_cnt[6];
+                    end
+                    else if(v_cnt >= DV4 && v_cnt < DV5) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_cnt[3];
+                    end
+                    else begin
+                        {vgaRed, vgaGreen, vgaBlue} = 12'h000;
+                    end
+                end
+                else if(h_cnt < DLH3) begin
+                    if(v_cnt < DV0) begin
+                        {vgaRed, vgaGreen, vgaBlue} = 12'h000;
+                    end
+                    else if(v_cnt < DV2) begin
+                         {vgaRed, vgaGreen, vgaBlue} = seg_cnt[1];
+                    end
+                    else if(v_cnt < DV3) begin
+                         {vgaRed, vgaGreen, vgaBlue} = seg_cnt[7];
+                    end
+                    else if(v_cnt < DV5) begin
+                         {vgaRed, vgaGreen, vgaBlue} =seg_cnt[2];
+                    end
+                    else begin
+                        {vgaRed, vgaGreen, vgaBlue} = 12'h000;
+                    end
+                end
+                else begin
+                    {vgaRed, vgaGreen, vgaBlue} = 12'h000;
+                end
+            end
+            default: begin
+                if(h_cnt < DLH0) begin
                 /*case(score0)
                     4'd0: {vgaRed, vgaGreen, vgaBlue} = 12'hfff;
                     4'd1: {vgaRed, vgaGreen, vgaBlue} = 12'h00f;
@@ -80,109 +154,111 @@ module vga_pixel_gen(
                     default: {vgaRed, vgaGreen, vgaBlue} = 12'h000;
                 endcase*/
                 {vgaRed, vgaGreen, vgaBlue} = 12'h000;
-            end
-            else if(h_cnt < DLH1) begin
-                if(v_cnt < DV0) begin
-                     {vgaRed, vgaGreen, vgaBlue} = 12'h000;
                 end
-                else if(v_cnt < DV2) begin
-                     {vgaRed, vgaGreen, vgaBlue} = seg_sl[5];
+                else if(h_cnt < DLH1) begin
+                    if(v_cnt < DV0) begin
+                        {vgaRed, vgaGreen, vgaBlue} = 12'h000;
+                    end
+                    else if(v_cnt < DV2) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_sl[5];
+                    end
+                    else if(v_cnt < DV3) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_sl[8];
+                    end
+                    else if(v_cnt < DV5) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_sl[4];
+                    end
+                    else begin
+                        {vgaRed, vgaGreen, vgaBlue} = 12'h000;
+                    end
                 end
-                else if(v_cnt < DV3) begin
-                     {vgaRed, vgaGreen, vgaBlue} = seg_sl[8];
+                else if(h_cnt < DLH2) begin
+                    if(v_cnt >= DV0 && v_cnt < DV1) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_sl[0];
+                    end
+                    else if(v_cnt >= DV2 && v_cnt < DV3) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_sl[6];
+                    end
+                    else if(v_cnt >= DV4 && v_cnt < DV5) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_sl[3];
+                    end
+                    else begin
+                        {vgaRed, vgaGreen, vgaBlue} = 12'h000;
+                    end
                 end
-                else if(v_cnt < DV5) begin
-                     {vgaRed, vgaGreen, vgaBlue} = seg_sl[4];
+                else if(h_cnt < DLH3) begin
+                    if(v_cnt < DV0) begin
+                        {vgaRed, vgaGreen, vgaBlue} = 12'h000;
+                    end
+                    else if(v_cnt < DV2) begin
+                         {vgaRed, vgaGreen, vgaBlue} = seg_sl[1];
+                    end
+                    else if(v_cnt < DV3) begin
+                         {vgaRed, vgaGreen, vgaBlue} = seg_sl[7];
+                    end
+                    else if(v_cnt < DV5) begin
+                         {vgaRed, vgaGreen, vgaBlue} =seg_sl[2];
+                    end
+                    else begin
+                        {vgaRed, vgaGreen, vgaBlue} = 12'h000;
+                    end
+                end
+                else if(h_cnt < DRH0) begin
+                    {vgaRed, vgaGreen, vgaBlue} = 12'h000;
+                end
+                else if(h_cnt < DRH1) begin
+                    if(v_cnt < DV0) begin
+                        {vgaRed, vgaGreen, vgaBlue} = 12'h000;
+                    end
+                    else if(v_cnt < DV2) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_sr[5];
+                    end
+                    else if(v_cnt < DV3) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_sr[8];
+                    end
+                    else if(v_cnt < DV5) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_sr[4];
+                    end
+                    else begin
+                        {vgaRed, vgaGreen, vgaBlue} = 12'h000;
+                    end
+                end
+                else if(h_cnt < DRH2) begin
+                    if(v_cnt >= DV0 && v_cnt < DV1) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_sr[0];
+                    end
+                    else if(v_cnt >= DV2 && v_cnt < DV3) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_sr[6];
+                    end
+                    else if(v_cnt >= DV4 && v_cnt < DV5) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_sr[3];
+                    end
+                    else begin
+                         {vgaRed, vgaGreen, vgaBlue} = 12'h000;
+                    end
+                end
+                else if(h_cnt < DRH3) begin
+                    if(v_cnt < DV0) begin
+                        {vgaRed, vgaGreen, vgaBlue} = 12'h000;
+                    end
+                    else if(v_cnt < DV2) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_sr[1];
+                    end
+                    else if(v_cnt < DV3) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_sr[7];
+                    end
+                    else if(v_cnt < DV5) begin
+                        {vgaRed, vgaGreen, vgaBlue} =seg_sr[2];
+                    end
+                    else begin
+                        {vgaRed, vgaGreen, vgaBlue} = 12'h000;
+                    end
                 end
                 else begin
-                     {vgaRed, vgaGreen, vgaBlue} = 12'h000;
+                    {vgaRed, vgaGreen, vgaBlue} = 12'h000;
                 end
-            end
-            else if(h_cnt < DLH2) begin
-                if(v_cnt >= DV0 && v_cnt < DV1) begin
-                     {vgaRed, vgaGreen, vgaBlue} = seg_sl[0];
-                end
-                else if(v_cnt >= DV2 && v_cnt < DV3) begin
-                     {vgaRed, vgaGreen, vgaBlue} = seg_sl[6];
-                end
-                else if(v_cnt >= DV4 && v_cnt < DV5) begin
-                     {vgaRed, vgaGreen, vgaBlue} = seg_sl[3];
-                end
-                else begin
-                     {vgaRed, vgaGreen, vgaBlue} = 12'h000;
-                end
-            end
-            else if(h_cnt < DLH3) begin
-                if(v_cnt < DV0) begin
-                     {vgaRed, vgaGreen, vgaBlue} = 12'h000;
-                end
-                else if(v_cnt < DV2) begin
-                     {vgaRed, vgaGreen, vgaBlue} = seg_sl[1];
-                end
-                else if(v_cnt < DV3) begin
-                    {vgaRed, vgaGreen, vgaBlue} = seg_sl[7];
-                end
-                else if(v_cnt < DV5) begin
-                     {vgaRed, vgaGreen, vgaBlue} =seg_sl[2];
-                end
-                else begin
-                     {vgaRed, vgaGreen, vgaBlue} = 12'h000;
-                end
-            end
-            else if(h_cnt < DRH0) begin
-                {vgaRed, vgaGreen, vgaBlue} = 12'h000;
-            end
-            else if(h_cnt < DRH1) begin
-                if(v_cnt < DV0) begin
-                     {vgaRed, vgaGreen, vgaBlue} = 12'h000;
-                end
-                else if(v_cnt < DV2) begin
-                     {vgaRed, vgaGreen, vgaBlue} = seg_sr[5];
-                end
-                else if(v_cnt < DV3) begin
-                     {vgaRed, vgaGreen, vgaBlue} = seg_sr[8];
-                end
-                else if(v_cnt < DV5) begin
-                     {vgaRed, vgaGreen, vgaBlue} = seg_sr[4];
-                end
-                else begin
-                     {vgaRed, vgaGreen, vgaBlue} = 12'h000;
-                end
-            end
-            else if(h_cnt < DRH2) begin
-                if(v_cnt >= DV0 && v_cnt < DV1) begin
-                     {vgaRed, vgaGreen, vgaBlue} = seg_sr[0];
-                end
-                else if(v_cnt >= DV2 && v_cnt < DV3) begin
-                     {vgaRed, vgaGreen, vgaBlue} = seg_sr[6];
-                end
-                else if(v_cnt >= DV4 && v_cnt < DV5) begin
-                     {vgaRed, vgaGreen, vgaBlue} = seg_sr[3];
-                end
-                else begin
-                     {vgaRed, vgaGreen, vgaBlue} = 12'h000;
-                end
-            end
-            else if(h_cnt < DRH3) begin
-                if(v_cnt < DV0) begin
-                     {vgaRed, vgaGreen, vgaBlue} = 12'h000;
-                end
-                else if(v_cnt < DV2) begin
-                     {vgaRed, vgaGreen, vgaBlue} = seg_sr[1];
-                end
-                else if(v_cnt < DV3) begin
-                    {vgaRed, vgaGreen, vgaBlue} = seg_sr[7];
-                end
-                else if(v_cnt < DV5) begin
-                     {vgaRed, vgaGreen, vgaBlue} =seg_sr[2];
-                end
-                else begin
-                     {vgaRed, vgaGreen, vgaBlue} = 12'h000;
-                end
-            end
-            else begin
-                {vgaRed, vgaGreen, vgaBlue} = 12'h000;
-            end
+            end 
+            endcase
         end 
     end
 
