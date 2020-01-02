@@ -12,12 +12,13 @@ module fsm(
     clk, 
     rst, start, stop, 
     goal, 
-    dig0, dig1, dig2, dig3, 
+    dig0, dig1, dig2, dig3, cur_state,
     pmod1, pmod2, pmod4
     );
 
 input clk, rst, start, goal, stop;
 output reg [3:0] dig0, dig1, dig2, dig3;
+output reg [2:0] cur_state;
 output pmod1, pmod2, pmod4;
 
 reg [2:0] state, n_state;
@@ -28,6 +29,7 @@ reg cnt_start, sp;
 
 always@ (posedge clk) begin
     state <= n_state;
+    cur_state <= state;
 end
 
 always@ (posedge clk) begin

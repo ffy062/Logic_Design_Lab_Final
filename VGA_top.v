@@ -22,11 +22,12 @@
 
 module VGA_top(
     clk, rst,
-    score0, score1,
+    state, score0, score1, cnt0, 
     vgaRed, vgaGreen, vgaBlue, hsync, vsync
     );
 input clk, rst;
-input score0, score1;
+input [2:0] state;
+input [3:0] score0, score1, cnt0;
 output [3:0] vgaRed, vgaGreen, vgaBlue;
 output hsync, vsync;
 
@@ -44,7 +45,8 @@ vga_controll vga_ctrl(
 
 vga_pixel_gen display(
     .h_cnt(h_cnt), .v_cnt(v_cnt), .valid(valid),
-    .vsync(v_sync), .hsync(h_sync), .score0(score0), .score1(score1),
+    .vsync(v_sync), .hsync(h_sync), .state(state),
+    .score0(score0), .score1(score1), .cnt0(cnt0),
     .vgaRed(vgaRed), .vgaGreen(vgaGreen), .vgaBlue(vgaBlue)
 );
 

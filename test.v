@@ -41,6 +41,7 @@ output hsync, vsync;
 wire fsmclk, dclk, ssclk;
 wire goal_d, goal_o, rst_o, rst_l, start_d, start_o, stop_d, stop_o; 
 wire [3:0] dis0, dis1, dis2, dis3, num;
+wire [2:0] state;
 
 clock1Hz clk1s(clk, rst_o, fsmclk);
 clock100Hz clkde(clk, rst_o, dclk);
@@ -61,15 +62,17 @@ one_pause op_p(clk, stop_d, stop_o);
 
 fsm basket(
     clk, rst_l, start_o, stop_o, goal_o, 
-    dis0, dis1, dis2, dis3, pmod_1, pmod_2, pmod_4
+    dis0, dis1, dis2, dis3, state, pmod_1, pmod_2, pmod_4
     );
 
 s_segment ss(ssclk, rst_o, dis0, dis1, dis2, dis3, num, an);
 sevensegment ss_d(num, seg);
 
 VGA_top vga_display(
-    .clk(clk), .rst(rst_l), .score0(dis0), .score1(dis1), 
-    .vgaRed(vgaRed), .vgaGreen(vgaGreen), .vgaBlue(vgaBlue), .hsync(hsync), .vsync(vsync)
+    .clk(clk), .rst(rst_l),
+    .state(state), .score0(dis0), .score1(dis1), .cnt0(dis2), 
+    .vgaRed(vgaRed), .vgaGreen(vgaGreen), .vgaBlue(vgaBlue), 
+    .hsync(hsync), .vsync(vsync)
     );
 
 
