@@ -20,9 +20,9 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module vga_num2pixel(num, seg0, seg1, seg2, seg3, seg4, seg5, seg6);
-input num;
-output reg [11:0] seg0, seg1, seg2, seg3, seg4, seg5, seg6;
+module vga_num2pixel(num, seg0, seg1, seg2, seg3, seg4, seg5, seg6, seg7, seg8);
+input [3:0]num;
+output reg [11:0] seg0, seg1, seg2, seg3, seg4, seg5, seg6, seg7, seg8;
 
 integer i;
 
@@ -36,6 +36,8 @@ always@(*) begin
             seg4 = 12'hfff;
             seg5 = 12'hfff;
             seg6 = 12'h000;
+            seg7 = 12'hfff;
+            seg8 = 12'hfff;
         end
         4'd1: begin
             seg0 = 12'h000;
@@ -45,15 +47,19 @@ always@(*) begin
             seg4 = 12'h000;
             seg5 = 12'h000;
             seg6 = 12'h000;
+            seg7 = 12'hfff;
+            seg8 = 12'h000;
         end
         4'd2: begin
             seg0 = 12'hfff;
             seg1 = 12'hfff;
             seg2 = 12'h000;
-            seg3= 12'hfff;
+            seg3 = 12'hfff;
             seg4 = 12'hfff;
             seg5 = 12'h000;
             seg6 = 12'hfff;
+            seg7 = 12'hfff;
+            seg8 = 12'hfff;
         end
         4'd3: begin
             seg0 = 12'hfff;
@@ -63,6 +69,8 @@ always@(*) begin
             seg4 = 12'h000;
             seg5 = 12'h000;
             seg6 = 12'hfff;
+            seg7 = 12'hfff;
+            seg8 = 12'h000;
         end
         4'd4: begin
             seg0 = 12'h000;
@@ -72,6 +80,8 @@ always@(*) begin
             seg4 = 12'h000;
             seg5 = 12'hfff;
             seg6 = 12'hfff;
+            seg7 = 12'hfff;
+            seg8 = 12'hfff;
         end
         4'd5: begin
             seg0 = 12'hfff;
@@ -81,6 +91,8 @@ always@(*) begin
             seg4 = 12'h000;
             seg5 = 12'hfff;
             seg6 = 12'hfff;
+            seg7 = 12'hfff;
+            seg8 = 12'hfff;
         end
         4'd6: begin
             seg0 = 12'hfff;
@@ -90,6 +102,8 @@ always@(*) begin
             seg4 = 12'hfff;
             seg5 = 12'hfff;
             seg6 = 12'hfff;
+            seg7 = 12'hfff;
+            seg8 = 12'hfff;
         end
         4'd7: begin
             seg0 = 12'hfff;
@@ -99,6 +113,8 @@ always@(*) begin
             seg4 = 12'h000;
             seg5 = 12'h000;
             seg6 = 12'h000;
+            seg7 = 12'hfff;
+            seg8 = 12'h000;
         end
         4'd8: begin
             seg0 = 12'hfff;
@@ -108,6 +124,8 @@ always@(*) begin
             seg4 = 12'hfff;
             seg5 = 12'hfff;
             seg6 = 12'hfff;
+            seg7 = 12'hfff;
+            seg8 = 12'hfff;
         end
         4'd9: begin
             seg0 = 12'hfff;
@@ -117,6 +135,8 @@ always@(*) begin
             seg4 = 12'h000;
             seg5 = 12'hfff;
             seg6 = 12'hfff;
+            seg7 = 12'hfff;
+            seg8 = 12'hfff;
         end
         4'd10: begin
             seg0 = 12'h000;
@@ -126,6 +146,8 @@ always@(*) begin
             seg4 = 12'h000;
             seg5 = 12'h000;
             seg6 = 12'hfff;
+            seg7 = 12'hfff;
+            seg8 = 12'hfff;
         end
         default: begin
             seg0 = 12'h000;
@@ -135,6 +157,8 @@ always@(*) begin
             seg4 = 12'h000;
             seg5 = 12'h000;
             seg6 = 12'hfff;
+            seg7 = 12'hfff;
+            seg8 = 12'hfff;
         end
     endcase
 end
