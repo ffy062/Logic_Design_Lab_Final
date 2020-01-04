@@ -191,8 +191,8 @@ always@(*) begin
         `pmode: begin
                 dig0 = score0;
                 dig1 = score1;
-                dig2 = 4'd10;
-                dig3 = 4'd10;
+                dig2 = 4'd0;
+                dig3 = 4'd0;
         end
         `finish: begin
                 dig0 = score0;
