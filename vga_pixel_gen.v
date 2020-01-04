@@ -19,22 +19,56 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
+`define A 5'd0
+`define B 5'd1
+`define C 5'd2
+`define D 5'd3
+`define E 5'd4
+`define F 5'd5
+`define G 5'd6
+`define H 5'd7
+`define I 5'd8
+`define J 5'd9
+`define K 5'd10
+`define L 5'd11
+`define M 5'd12
+`define N 5'd13
+`define O 5'd14
+`define P 5'd15
+`define Q 5'd16
+`define R 5'd17
+`define S 5'd18
+`define T 5'd19
+`define U 5'd20
+`define V 5'd21
+`define W 5'd22
+//`define X 5'd23
+`define Y 5'd24
+//`define Z 5'd25
 
-`define rst 3'd0 
-`define b_rst 3'd1
-`define b_play 3'd2
-`define play 3'd3
-`define finish 3'd4 
+
+
+`define rst 4'd0 
+`define b_rst 4'd1
+`define b_play 4'd2
+`define stage1 4'd3
+`define stage2 4'd4
+`define stage3 4'd5
+`define pmode 4'd6
+`define win 4'd7
+`define lose 4'd8
+`define finish 4'd9
 
 module vga_pixel_gen(
-    h_cnt, v_cnt, valid, vsync, hsync,
+    h_cnt, v_cnt, valid, theme, 
     state, score0, score1, cnt0,
     vgaRed, vgaGreen, vgaBlue
     );
 
     input [9:0] h_cnt, v_cnt;
-    input valid, vsync, hsync;
-    input [2:0] state;
+    input valid;
+    input [1:0] theme;
+    input [3:0] state;
     input [3:0] score0, score1, cnt0;
     output reg [3:0] vgaRed, vgaGreen, vgaBlue;
 
@@ -44,6 +78,12 @@ module vga_pixel_gen(
     wire [11:0] seg_sr [8:0];
     wire [11:0] seg_sl [8:0];
     wire [11:0] seg_cnt [8:0];
+    wire [11:0] seg_lc [16:0];
+    wire [11:0] seg_le [16:0];
+    wire [11:0] seg_lo [16:0];
+    wire [11:0] seg_lr [16:0];
+    wire [11:0] seg_ls [16:0];
+    reg [11:0] backgrond;
     
     assign DRH0 = 340; // right score digit 
     assign DRH1 = 350; // height: 90 width: 50 bar width: 10
@@ -73,20 +113,46 @@ module vga_pixel_gen(
     assign DCV5 = 330;
 
     vga_num2pixel n2p_sr(
-        .num(score0), .seg0(seg_sr[0]),.seg1(seg_sr[1]), .seg2(seg_sr[2]),
+        .num(score0), .theme(theme),
+        .seg0(seg_sr[0]),.seg1(seg_sr[1]), .seg2(seg_sr[2]),
         .seg3(seg_sr[3]), .seg4(seg_sr[4]), .seg5(seg_sr[5]), .seg6(seg_sr[6]),
         .seg7(seg_sr[7]), .seg8(seg_sr[8])
         );
      vga_num2pixel n2p_sl(
-        .num(score1), .seg0(seg_sl[0]),.seg1(seg_sl[1]), .seg2(seg_sl[2]),
+        .num(score1), .theme(theme),
+        .seg0(seg_sl[0]), .seg1(seg_sl[1]), .seg2(seg_sl[2]),
         .seg3(seg_sl[3]), .seg4(seg_sl[4]), .seg5(seg_sl[5]), .seg6(seg_sl[6]),
         .seg7(seg_sl[7]), .seg8(seg_sl[8])
         );
      vga_num2pixel n2p_cnt(
-        .num(cnt0), .seg0(seg_cnt[0]),.seg1(seg_cnt[1]), .seg2(seg_cnt[2]),
+        .num(cnt0), .theme(theme),
+        .seg0(seg_cnt[0]),.seg1(seg_cnt[1]), .seg2(seg_cnt[2]),
         .seg3(seg_cnt[3]), .seg4(seg_cnt[4]), .seg5(seg_cnt[5]), .seg6(seg_cnt[6]),
         .seg7(seg_cnt[7]), .seg8(seg_cnt[8])
         );
+
+    vga_letter2pixel l2p_lc(
+        .letter(`S), .theme(theme),
+        .seg0(seg_ls[0]), .seg1(seg_ls[1]), .seg2(seg_ls[2]), .seg3(seg_ls[3]),
+        .seg4(seg_ls[4]), .seg5(seg_ls[5]), .seg6(seg_ls[6]), .seg7(seg_ls[7]),
+        .seg8(seg_ls[8]), .seg9(seg_ls[9]), .sega(seg_ls[10]), .segb(seg_ls[11]),
+        .segc(seg_ls[12]), .segd(seg_ls[13]), .sege(seg_ls[14]), 
+        .segf(seg_ls[15]), .segg(seg_ls[16]) 
+    );
+
+    always@(*) begin
+    case(theme)
+        2'b00: begin
+            backgrond = 12'h000;
+        end
+        2'b01: begin
+            backgrond = 12'hfff;
+        end
+        default: begin
+            backgrond = 12'h000;
+        end
+    endcase
+    end
 
 
     always @(*) begin
@@ -99,11 +165,11 @@ module vga_pixel_gen(
             end
             `b_play: begin
                 if(h_cnt < DCH0) begin
-                    {vgaRed, vgaGreen, vgaBlue} = 12'h000;
+                    {vgaRed, vgaGreen, vgaBlue} = backgrond;
                 end
                 else if(h_cnt < DCH1) begin
                     if(v_cnt < DCV0) begin
-                        {vgaRed, vgaGreen, vgaBlue} = 12'h000;
+                        {vgaRed, vgaGreen, vgaBlue} = backgrond;
                     end
                     else if(v_cnt < DCV2) begin
                         {vgaRed, vgaGreen, vgaBlue} = seg_cnt[5];
@@ -115,7 +181,7 @@ module vga_pixel_gen(
                         {vgaRed, vgaGreen, vgaBlue} = seg_cnt[4];
                     end
                     else begin
-                        {vgaRed, vgaGreen, vgaBlue} = 12'h000;
+                        {vgaRed, vgaGreen, vgaBlue} = backgrond;
                     end
                 end
                 else if(h_cnt < DCH2) begin
@@ -129,12 +195,12 @@ module vga_pixel_gen(
                         {vgaRed, vgaGreen, vgaBlue} = seg_cnt[3];
                     end
                     else begin
-                        {vgaRed, vgaGreen, vgaBlue} = 12'h000;
+                        {vgaRed, vgaGreen, vgaBlue} = backgrond;
                     end
                 end
                 else if(h_cnt < DCH3) begin
                     if(v_cnt < DCV0) begin
-                        {vgaRed, vgaGreen, vgaBlue} = 12'h000;
+                        {vgaRed, vgaGreen, vgaBlue} = backgrond;
                     end
                     else if(v_cnt < DCV2) begin
                          {vgaRed, vgaGreen, vgaBlue} = seg_cnt[1];
@@ -146,11 +212,11 @@ module vga_pixel_gen(
                          {vgaRed, vgaGreen, vgaBlue} =seg_cnt[2];
                     end
                     else begin
-                        {vgaRed, vgaGreen, vgaBlue} = 12'h000;
+                        {vgaRed, vgaGreen, vgaBlue} = backgrond;
                     end
                 end
                 else begin
-                    {vgaRed, vgaGreen, vgaBlue} = 12'h000;
+                    {vgaRed, vgaGreen, vgaBlue} = backgrond;
                 end
             end
             default: begin
@@ -163,13 +229,13 @@ module vga_pixel_gen(
                     4'd4: {vgaRed, vgaGreen, vgaBlue} = 12'h0ff;
                     4'd5: {vgaRed, vgaGreen, vgaBlue} = 12'hf0f;
                     4'd6: {vgaRed, vgaGreen, vgaBlue} = 12'hff0;
-                    default: {vgaRed, vgaGreen, vgaBlue} = 12'h000;
+                    default: {vgaRed, vgaGreen, vgaBlue} = backgrond;
                 endcase*/
-                {vgaRed, vgaGreen, vgaBlue} = 12'h000;
+                {vgaRed, vgaGreen, vgaBlue} = backgrond;
                 end
                 else if(h_cnt < DLH1) begin
                     if(v_cnt < DV0) begin
-                        {vgaRed, vgaGreen, vgaBlue} = 12'h000;
+                        {vgaRed, vgaGreen, vgaBlue} = backgrond;
                     end
                     else if(v_cnt < DV2) begin
                         {vgaRed, vgaGreen, vgaBlue} = seg_sl[5];
@@ -181,7 +247,7 @@ module vga_pixel_gen(
                         {vgaRed, vgaGreen, vgaBlue} = seg_sl[4];
                     end
                     else begin
-                        {vgaRed, vgaGreen, vgaBlue} = 12'h000;
+                        {vgaRed, vgaGreen, vgaBlue} = backgrond;
                     end
                 end
                 else if(h_cnt < DLH2) begin
@@ -195,12 +261,12 @@ module vga_pixel_gen(
                         {vgaRed, vgaGreen, vgaBlue} = seg_sl[3];
                     end
                     else begin
-                        {vgaRed, vgaGreen, vgaBlue} = 12'h000;
+                        {vgaRed, vgaGreen, vgaBlue} = backgrond;
                     end
                 end
                 else if(h_cnt < DLH3) begin
                     if(v_cnt < DV0) begin
-                        {vgaRed, vgaGreen, vgaBlue} = 12'h000;
+                        {vgaRed, vgaGreen, vgaBlue} = backgrond;
                     end
                     else if(v_cnt < DV2) begin
                          {vgaRed, vgaGreen, vgaBlue} = seg_sl[1];
@@ -212,15 +278,15 @@ module vga_pixel_gen(
                          {vgaRed, vgaGreen, vgaBlue} =seg_sl[2];
                     end
                     else begin
-                        {vgaRed, vgaGreen, vgaBlue} = 12'h000;
+                        {vgaRed, vgaGreen, vgaBlue} = backgrond;
                     end
                 end
                 else if(h_cnt < DRH0) begin
-                    {vgaRed, vgaGreen, vgaBlue} = 12'h000;
+                    {vgaRed, vgaGreen, vgaBlue} = backgrond;
                 end
                 else if(h_cnt < DRH1) begin
                     if(v_cnt < DV0) begin
-                        {vgaRed, vgaGreen, vgaBlue} = 12'h000;
+                        {vgaRed, vgaGreen, vgaBlue} = backgrond;
                     end
                     else if(v_cnt < DV2) begin
                         {vgaRed, vgaGreen, vgaBlue} = seg_sr[5];
@@ -232,7 +298,7 @@ module vga_pixel_gen(
                         {vgaRed, vgaGreen, vgaBlue} = seg_sr[4];
                     end
                     else begin
-                        {vgaRed, vgaGreen, vgaBlue} = 12'h000;
+                        {vgaRed, vgaGreen, vgaBlue} = backgrond;
                     end
                 end
                 else if(h_cnt < DRH2) begin
@@ -246,12 +312,12 @@ module vga_pixel_gen(
                         {vgaRed, vgaGreen, vgaBlue} = seg_sr[3];
                     end
                     else begin
-                         {vgaRed, vgaGreen, vgaBlue} = 12'h000;
+                         {vgaRed, vgaGreen, vgaBlue} = backgrond;
                     end
                 end
                 else if(h_cnt < DRH3) begin
                     if(v_cnt < DV0) begin
-                        {vgaRed, vgaGreen, vgaBlue} = 12'h000;
+                        {vgaRed, vgaGreen, vgaBlue} = backgrond;
                     end
                     else if(v_cnt < DV2) begin
                         {vgaRed, vgaGreen, vgaBlue} = seg_sr[1];
@@ -263,11 +329,11 @@ module vga_pixel_gen(
                         {vgaRed, vgaGreen, vgaBlue} =seg_sr[2];
                     end
                     else begin
-                        {vgaRed, vgaGreen, vgaBlue} = 12'h000;
+                        {vgaRed, vgaGreen, vgaBlue} = backgrond;
                     end
                 end
                 else begin
-                    {vgaRed, vgaGreen, vgaBlue} = 12'h000;
+                    {vgaRed, vgaGreen, vgaBlue} = backgrond;
                 end
             end 
             endcase

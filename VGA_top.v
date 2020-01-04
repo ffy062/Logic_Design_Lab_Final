@@ -21,12 +21,12 @@
 
 
 module VGA_top(
-    clk, rst,
+    clk, rst, theme_c, 
     state, score0, score1, cnt0, 
     vgaRed, vgaGreen, vgaBlue, hsync, vsync
     );
-input clk, rst;
-input [2:0] state;
+input clk, rst, theme_c;
+input [3:0] state;
 input [3:0] score0, score1, cnt0;
 output [3:0] vgaRed, vgaGreen, vgaBlue;
 output hsync, vsync;
@@ -35,6 +35,7 @@ wire clk_25Mhz;
 wire valid;
 wire [9:0] h_cnt, v_cnt; // h: 640, v: 480
 wire v_sync, h_sync;
+wire [1:0] theme;
 
 clock_25MHz vga_clk(.clk(clk), .rst(rst), .nclk(clk_25Mhz));
 
@@ -43,9 +44,11 @@ vga_controll vga_ctrl(
     .hsync(h_sync), .vsync(v_sync), .valid(valid), .h_cnt(h_cnt), .v_cnt(v_cnt)
 );
 
+vga_theme_ctrl theme_ctrl(.clk(clk), .rst(rst), .chg(theme_c), .theme(theme));
+
 vga_pixel_gen display(
     .h_cnt(h_cnt), .v_cnt(v_cnt), .valid(valid),
-    .vsync(v_sync), .hsync(h_sync), .state(state),
+    .theme(theme), .state(state),
     .score0(score0), .score1(score1), .cnt0(cnt0),
     .vgaRed(vgaRed), .vgaGreen(vgaGreen), .vgaBlue(vgaBlue)
 );

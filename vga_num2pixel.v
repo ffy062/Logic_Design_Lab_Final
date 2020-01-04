@@ -20,145 +20,174 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module vga_num2pixel(num, seg0, seg1, seg2, seg3, seg4, seg5, seg6, seg7, seg8);
-input [3:0]num;
+// ---0---
+// 5     1
+// -     - 
+// 7--6--8
+// -     -
+// 4     2
+// ---3---
+
+module vga_num2pixel(
+    num, theme,  
+    seg0, seg1, seg2, seg3, seg4, seg5, seg6, seg7, seg8
+    );
+input [3:0] num;
+input [1:0] theme;
 output reg [11:0] seg0, seg1, seg2, seg3, seg4, seg5, seg6, seg7, seg8;
 
-integer i;
+reg [11:0] backgrond, wcolor1;
+
+always@(*) begin
+    case(theme)
+        2'b00: begin
+            backgrond = 12'h000;
+            wcolor1 = 12'hfff;
+        end
+        2'b01: begin
+            backgrond = 12'hfff;
+            wcolor1 = 12'h000;
+        end
+        default: begin
+            backgrond = 12'h000;
+            wcolor1 = 12'hfff;
+        end
+    endcase
+end
 
 always@(*) begin
     case(num)
         4'd0: begin
-            seg0 = 12'hfff;
-            seg1 = 12'hfff;
-            seg2 = 12'hfff;
-            seg3 = 12'hfff;
-            seg4 = 12'hfff;
-            seg5 = 12'hfff;
-            seg6 = 12'h000;
-            seg7 = 12'hfff;
-            seg8 = 12'hfff;
+            seg0 = wcolor1;
+            seg1 = wcolor1;
+            seg2 = wcolor1;
+            seg3 = wcolor1;
+            seg4 = wcolor1;
+            seg5 = wcolor1;
+            seg6 = backgrond;
+            seg7 = wcolor1;
+            seg8 = wcolor1;
         end
         4'd1: begin
-            seg0 = 12'h000;
-            seg1 = 12'hfff;
-            seg2 = 12'hfff;
-            seg3 = 12'h000;
-            seg4 = 12'h000;
-            seg5 = 12'h000;
-            seg6 = 12'h000;
-            seg7 = 12'hfff;
-            seg8 = 12'h000;
+            seg0 = backgrond;
+            seg1 = wcolor1;
+            seg2 = wcolor1;
+            seg3 = backgrond;
+            seg4 = backgrond;
+            seg5 = backgrond;
+            seg6 = backgrond;
+            seg7 = wcolor1;
+            seg8 = backgrond;
         end
         4'd2: begin
-            seg0 = 12'hfff;
-            seg1 = 12'hfff;
-            seg2 = 12'h000;
-            seg3 = 12'hfff;
-            seg4 = 12'hfff;
-            seg5 = 12'h000;
-            seg6 = 12'hfff;
-            seg7 = 12'hfff;
-            seg8 = 12'hfff;
+            seg0 = wcolor1;
+            seg1 = wcolor1;
+            seg2 = backgrond;
+            seg3 = wcolor1;
+            seg4 = wcolor1;
+            seg5 = backgrond;
+            seg6 = wcolor1;
+            seg7 = wcolor1;
+            seg8 = wcolor1;
         end
         4'd3: begin
-            seg0 = 12'hfff;
-            seg1 = 12'hfff;
-            seg2 = 12'hfff;
-            seg3 = 12'hfff;
-            seg4 = 12'h000;
-            seg5 = 12'h000;
-            seg6 = 12'hfff;
-            seg7 = 12'hfff;
-            seg8 = 12'h000;
+            seg0 = wcolor1;
+            seg1 = wcolor1;
+            seg2 = wcolor1;
+            seg3 = wcolor1;
+            seg4 = backgrond;
+            seg5 = backgrond;
+            seg6 = wcolor1;
+            seg7 = wcolor1;
+            seg8 = backgrond;
         end
         4'd4: begin
-            seg0 = 12'h000;
-            seg1 = 12'hfff;
-            seg2 = 12'hfff;
-            seg3 = 12'h000;
-            seg4 = 12'h000;
-            seg5 = 12'hfff;
-            seg6 = 12'hfff;
-            seg7 = 12'hfff;
-            seg8 = 12'hfff;
+            seg0 = backgrond;
+            seg1 = wcolor1;
+            seg2 = wcolor1;
+            seg3 = backgrond;
+            seg4 = backgrond;
+            seg5 = wcolor1;
+            seg6 = wcolor1;
+            seg7 = wcolor1;
+            seg8 = wcolor1;
         end
         4'd5: begin
-            seg0 = 12'hfff;
-            seg1 = 12'h000;
-            seg2 = 12'hfff;
-            seg3 = 12'hfff;
-            seg4 = 12'h000;
-            seg5 = 12'hfff;
-            seg6 = 12'hfff;
-            seg7 = 12'hfff;
-            seg8 = 12'hfff;
+            seg0 = wcolor1;
+            seg1 = backgrond;
+            seg2 = wcolor1;
+            seg3 = wcolor1;
+            seg4 = backgrond;
+            seg5 = wcolor1;
+            seg6 = wcolor1;
+            seg7 = wcolor1;
+            seg8 = wcolor1;
         end
         4'd6: begin
-            seg0 = 12'hfff;
-            seg1 = 12'h000;
-            seg2 = 12'hfff;
-            seg3 = 12'hfff;
-            seg4 = 12'hfff;
-            seg5 = 12'hfff;
-            seg6 = 12'hfff;
-            seg7 = 12'hfff;
-            seg8 = 12'hfff;
+            seg0 = wcolor1;
+            seg1 = backgrond;
+            seg2 = wcolor1;
+            seg3 = wcolor1;
+            seg4 = wcolor1;
+            seg5 = wcolor1;
+            seg6 = wcolor1;
+            seg7 = wcolor1;
+            seg8 = wcolor1;
         end
         4'd7: begin
-            seg0 = 12'hfff;
-            seg1 = 12'hfff;
-            seg2 = 12'hfff;
-            seg3 = 12'h000;
-            seg4 = 12'h000;
-            seg5 = 12'h000;
-            seg6 = 12'h000;
-            seg7 = 12'hfff;
-            seg8 = 12'h000;
+            seg0 = wcolor1;
+            seg1 = wcolor1;
+            seg2 = wcolor1;
+            seg3 = backgrond;
+            seg4 = backgrond;
+            seg5 = backgrond;
+            seg6 = backgrond;
+            seg7 = wcolor1;
+            seg8 = backgrond;
         end
         4'd8: begin
-            seg0 = 12'hfff;
-            seg1 = 12'hfff;
-            seg2 = 12'hfff;
-            seg3 = 12'hfff;
-            seg4 = 12'hfff;
-            seg5 = 12'hfff;
-            seg6 = 12'hfff;
-            seg7 = 12'hfff;
-            seg8 = 12'hfff;
+            seg0 = wcolor1;
+            seg1 = wcolor1;
+            seg2 = wcolor1;
+            seg3 = wcolor1;
+            seg4 = wcolor1;
+            seg5 = wcolor1;
+            seg6 = wcolor1;
+            seg7 = wcolor1;
+            seg8 = wcolor1;
         end
         4'd9: begin
-            seg0 = 12'hfff;
-            seg1 = 12'hfff;
-            seg2 = 12'hfff;
-            seg3 = 12'h000;
-            seg4 = 12'h000;
-            seg5 = 12'hfff;
-            seg6 = 12'hfff;
-            seg7 = 12'hfff;
-            seg8 = 12'hfff;
+            seg0 = wcolor1;
+            seg1 = wcolor1;
+            seg2 = wcolor1;
+            seg3 = backgrond;
+            seg4 = backgrond;
+            seg5 = wcolor1;
+            seg6 = wcolor1;
+            seg7 = wcolor1;
+            seg8 = wcolor1;
         end
         4'd10: begin
-            seg0 = 12'h000;
-            seg1 = 12'h000;
-            seg2 = 12'h000;
-            seg3 = 12'h000;
-            seg4 = 12'h000;
-            seg5 = 12'h000;
-            seg6 = 12'hfff;
-            seg7 = 12'hfff;
-            seg8 = 12'hfff;
+            seg0 = backgrond;
+            seg1 = backgrond;
+            seg2 = backgrond;
+            seg3 = backgrond;
+            seg4 = backgrond;
+            seg5 = backgrond;
+            seg6 = wcolor1;
+            seg7 = wcolor1;
+            seg8 = wcolor1;
         end
         default: begin
-            seg0 = 12'h000;
-            seg1 = 12'h000;
-            seg2 = 12'h000;
-            seg3 = 12'h000;
-            seg4 = 12'h000;
-            seg5 = 12'h000;
-            seg6 = 12'hfff;
-            seg7 = 12'hfff;
-            seg8 = 12'hfff;
+            seg0 = backgrond;
+            seg1 = backgrond;
+            seg2 = backgrond;
+            seg3 = backgrond;
+            seg4 = backgrond;
+            seg5 = backgrond;
+            seg6 = wcolor1;
+            seg7 = wcolor1;
+            seg8 = wcolor1;
         end
     endcase
 end
