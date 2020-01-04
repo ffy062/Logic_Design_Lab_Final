@@ -32,7 +32,7 @@
 module top(
     clk, 
     btnU, btnC, btnR, btnL, btnD,
-    sw, 
+    sw0, sw1, 
     goal,
     seg, an, 
     pmod_1, pmod_2, pmod_4,
@@ -41,7 +41,7 @@ module top(
 input clk;
 input btnU, btnC, btnR, btnL, btnD;
 input goal;
-input sw [1:0];
+input sw0, sw1;
 output [6:0] seg;
 output [3:0] an;
 output pmod_1, pmod_2, pmod_4;
@@ -52,14 +52,14 @@ wire fsmclk, dclk, ssclk;
 wire goal_d, goal_o, btnU_o, btnU_l, btnC_d, btnC_o, btnR_d, btnR_o;
 wire btnL_d, btnL_o, btnD_d, btnD_o; 
 wire [3:0] dis0, dis1, dis2, dis3, num;
-wire [2:0] state;
+wire [3:0] state;
 
 clock1Hz clk1s(clk, btnU_o, fsmclk);
 clock100Hz clkde(clk, btnU_o, dclk);
 clk_7seg clkss(clk, btnU_o, ssclk);
 
 debounce de_u(dclk, btnU, btnU_d);
-one_pause op_u(clk, btnU, btnU_o);
+one_pause op_u(clk, btnU_d, btnU_o);
 long_press lp_u(clk, btnU_d, btnU_l);
 
 debounce de_c(dclk, btnC, btnC_d);
@@ -89,7 +89,7 @@ sevensegment ss_d(num, seg);
 
 VGA_top vga_display(
     .clk(clk), .rst(btnU_l), .theme_c(btnU_o), 
-    .state(state), .score0(dis0), .score1(dis1), .cnt0(dis2), 
+    .state(state), .score0(dis0), .score1(dis1), .cnt0(dis2), .cnt1(dis3),
     .vgaRed(vgaRed), .vgaGreen(vgaGreen), .vgaBlue(vgaBlue), 
     .hsync(hsync), .vsync(vsync)
     );

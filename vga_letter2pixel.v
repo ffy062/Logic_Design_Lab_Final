@@ -63,9 +63,9 @@ module vga_letter2pixel(
     seg9, sega, segb, segc, segd, sege, segf, segg
     );
 input [4:0] letter;
-input theme;
-output [11:0] seg0, seg1, seg2, seg3, seg4, seg5, seg6, seg7, seg8;
-output [11:0] seg9, sega, segb, segc, segd, sege, segf, segg;
+input [1:0]theme;
+output reg[11:0] seg0, seg1, seg2, seg3, seg4, seg5, seg6, seg7, seg8;
+output reg[11:0] seg9, sega, segb, segc, segd, sege, segf, segg;
 
 reg [11:0] backgrond, wcolor1;
 
@@ -99,13 +99,32 @@ always@(*) begin
             seg7 = wcolor1;
             seg8 = wcolor1;
             seg9 = wcolor1;
-            seg10 = backgrond;
-            seg11 = backgrond;
-            seg12 = backgrond;
-            seg13 = backgrond;
-            seg14 = wcolor1;
-            seg15 = backgrond;
-            seg16 = wcolor1;
+            sega = backgrond;
+            segb = backgrond;
+            segc = backgrond;
+            segd = backgrond;
+            sege = wcolor1;
+            segf = backgrond;
+            segg = wcolor1;
+        end
+        `B: begin
+            seg0 = wcolor1;
+            seg1 = wcolor1;
+            seg2 = wcolor1;
+            seg3 = wcolor1;
+            seg4 = wcolor1;
+            seg5 = wcolor1;
+            seg6 = wcolor1;
+            seg7 = wcolor1;
+            seg8 = wcolor1;
+            seg9 = wcolor1;
+            sega = backgrond;
+            segb = backgrond;
+            segc = backgrond;
+            segd = backgrond;
+            sege = backgrond;
+            segf = backgrond;
+            segg = backgrond;
         end
         `C: begin
             seg0 = wcolor1;
@@ -118,32 +137,108 @@ always@(*) begin
             seg7 = backgrond;
             seg8 = wcolor1;
             seg9 = backgrond;
-            seg10 = backgrond;
-            seg11 = backgrond;
-            seg12 = backgrond;
-            seg13 = backgrond;
-            seg14 = backgrond;
-            seg15 = backgrond;
-            seg16 = backgrond;
+            sega = backgrond;
+            segb = backgrond;
+            segc = backgrond;
+            segd = backgrond;
+            sege = backgrond;
+            segf = backgrond;
+            segg = backgrond;
         end
         `E: begin
-           seg0 = wcolor1;
+            seg0 = wcolor1;
             seg1 = backgrond;
             seg2 = backgrond;
             seg3 = wcolor1;
             seg4 = wcolor1;
             seg5 = wcolor1;
             seg6 = wcolor1;
+            seg7 = wcolor1;
+            seg8 = wcolor1;
+            seg9 = backgrond;
+            sega = backgrond;
+            segb = backgrond;
+            segc = backgrond;
+            segd = backgrond;
+            sege = backgrond;
+            segf = backgrond;
+            segg = wcolor1;
+        end
+        `I: begin
+            seg0 = wcolor1;
+            seg1 = backgrond;
+            seg2 = backgrond;
+            seg3 = wcolor1;
+            seg4 = backgrond;
+            seg5 = backgrond;
+            seg6 = backgrond;
+            seg7 = backgrond;
+            seg8 = wcolor1;
+            seg9 = wcolor1;
+            sega = backgrond;
+            segb = backgrond;
+            segc = backgrond;
+            segd = backgrond;
+            sege = backgrond;
+            segf = backgrond;
+            segg = wcolor1;
+        end
+        `K: begin
+            seg0 = backgrond;
+            seg1 = backgrond;
+            seg2 = backgrond;
+            seg3 = backgrond;
+            seg4 = wcolor1;
+            seg5 = wcolor1;
+            seg6 = backgrond;
+            seg7 = backgrond;
+            seg8 = backgrond;
+            seg9 = backgrond;
+            sega = backgrond;
+            segb = wcolor1;
+            segc = backgrond;
+            segd = wcolor1;
+            sege = backgrond;
+            segf = backgrond;
+            segg = wcolor1;
+        end
+        `L: begin
+            seg0 = backgrond;
+            seg1 = backgrond;
+            seg2 = backgrond;
+            seg3 = wcolor1;
+            seg4 = wcolor1;
+            seg5 = wcolor1;
+            seg6 = backgrond;
             seg7 = backgrond;
             seg8 = wcolor1;
             seg9 = backgrond;
-            seg10 = backgrond;
-            seg11 = backgrond;
-            seg12 = backgrond;
-            seg13 = backgrond;
-            seg14 = backgrond;
-            seg15 = backgrond;
-            seg16 = wcolor1;
+            sega = backgrond;
+            segb = backgrond;
+            segc = backgrond;
+            segd = backgrond;
+            sege = backgrond;
+            segf = backgrond;
+            segg = backgrond;
+        end
+        `M: begin
+            seg0 = backgrond;
+            seg1 = wcolor1;
+            seg2 = wcolor1;
+            seg3 = backgrond;
+            seg4 = wcolor1;
+            seg5 = wcolor1;
+            seg6 = backgrond;
+            seg7 = backgrond;
+            seg8 = wcolor1;
+            seg9 = wcolor1;
+            sega = wcolor1;
+            segb = wcolor1;
+            segc = backgrond;
+            segd = backgrond;
+            sege = backgrond;
+            segf = backgrond;
+            segg = wcolor1;
         end
         `O: begin
             seg0 = wcolor1;
@@ -156,13 +251,13 @@ always@(*) begin
             seg7 = backgrond;
             seg8 = wcolor1;
             seg9 = wcolor1;
-            seg10 = backgrond;
-            seg11 = backgrond;
-            seg12 = backgrond;
-            seg13 = backgrond;
-            seg14 = backgrond;
-            seg15 = backgrond;
-            seg16 = backgrond;
+            sega = backgrond;
+            segb = backgrond;
+            segc = backgrond;
+            segd = backgrond;
+            sege = backgrond;
+            segf = backgrond;
+            segg = backgrond;
         end
         `R: begin
             seg0 = wcolor1;
@@ -175,13 +270,13 @@ always@(*) begin
             seg7 = wcolor1;
             seg8 = wcolor1;
             seg9 = wcolor1;
-            seg10 = backgrond;
-            seg11 = backgrond;
-            seg12 = backgrond;
-            seg13 = wcolor1;
-            seg14 = backgrond;
-            seg15 = backgrond;
-            seg16 = wcolor1;
+            sega = backgrond;
+            segb = backgrond;
+            segc = backgrond;
+            segd = wcolor1;
+            sege = backgrond;
+            segf = backgrond;
+            segg = wcolor1;
         end
         `S: begin
             seg0 = wcolor1;
@@ -194,15 +289,34 @@ always@(*) begin
             seg7 = wcolor1;
             seg8 = wcolor1;
             seg9 = wcolor1;
-            seg10 = backgrond;
-            seg11 = backgrond;
-            seg12 = backgrond;
-            seg13 = backgrond;
-            seg14 = backgrond;
-            seg15 = backgrond;
-            seg16 = wcolor1;
+            sega = backgrond;
+            segb = backgrond;
+            segc = backgrond;
+            segd = backgrond;
+            sege = backgrond;
+            segf = backgrond;
+            segg = wcolor1;
         end
-        defalut: begin
+        `T: begin
+            seg0 = wcolor1;
+            seg1 = backgrond;
+            seg2 = backgrond;
+            seg3 = backgrond;
+            seg4 = backgrond;
+            seg5 = backgrond;
+            seg6 = backgrond;
+            seg7 = backgrond;
+            seg8 = wcolor1;
+            seg9 = wcolor1;
+            sega = backgrond;
+            segb = backgrond;
+            segc = backgrond;
+            segd = backgrond;
+            sege = backgrond;
+            segf = backgrond;
+            segg = wcolor1;
+        end
+        default: begin
             seg0 = backgrond;
             seg1 = backgrond;
             seg2 = backgrond;
@@ -213,13 +327,13 @@ always@(*) begin
             seg7 = backgrond;
             seg8 = backgrond;
             seg9 = backgrond;
-            seg10 = backgrond;
-            seg11 = backgrond;
-            seg12 = backgrond;
-            seg13 = backgrond;
-            seg14 = backgrond;
-            seg15 = backgrond;
-            seg16 = backgrond;
+            sega = backgrond;
+            segb = backgrond;
+            segc = backgrond;
+            segd = backgrond;
+            sege = backgrond;
+            segf = backgrond;
+            segg = backgrond;
         end
     endcase
 end
