@@ -48,6 +48,10 @@ always@(*) begin
             backgrond = 12'hfff;
             wcolor1 = 12'h000;
         end
+        2'b10: begin
+            backgrond = 12'he7d;
+            wcolor1 = 12'h8f0;
+        end
         default: begin
             backgrond = 12'h000;
             wcolor1 = 12'hfff;

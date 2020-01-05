@@ -75,23 +75,34 @@ module vga_pixel_gen(
     wire [9:0] DRH0, DRH1, DRH2, DRH3, DV0, DV1, DV2, DV3, DV4, DV5;
     wire [9:0] DLH0, DLH1, DLH2, DLH3;
     wire [9:0] DCH0, DCH1, DCH2, DCH3, DCV0, DCV1, DCV2, DCV3, DCV4, DCV5;
+    wire [9:0] DTH0, DTH1, DTH2, DTH3, DTV0, DTV1, DTV2, DTV3, DTV4, DTV5;
+    wire [9:0] DDH0, DDH1, DDH2, DDH3;
 
     wire [9:0] S0H0, S0H1, S0H2, S0H3, S0V0, S0V1, S0V2, S0V3, S0V4, S0V5;
     wire [9:0] S1H0, S1H1, S1H2;
     wire [9:0] S2H0, S2H1, S2H2, S2H3;
-    wire [9:0] S3H0, S3H1, S3H2, S3H3, S3H4, S3H2a, S3H2b, S3H2c, S3H2d;
-    wire [9:0] S3H2e, S3V3a, S3V3b, S3V3c, S3V3d, S3VSd, S3V3e;
-    wire [9:0] S3V3a1, S3V3b1, S3V3c1, S3V3d1, S3V3e1;
+    wire [9:0] S3H0, S3H1, S3H2, S3H3, S3H1a, S3H1b;
     wire [9:0] S4H0, S4H1, S4H2;
+
+    wire [9:0] T0H0, T0H1, T0H2, T0H3, T0V0, T0V1, T0V2, T0V3, T0V4, T0V5;
+    wire [9:0] T1H0, T1H1, T1H2, T1H3;
+    wire [9:0] T2H0, T2H1, T2H2, T2H3, T2H1a, T2H1b, T2H1c, T2H1d, T2H1e, T2H1f;
+    wire [9:0] T2H1g, T2H1h, T2H1i, T2H1j, T2H1k, T2V0a, T2V0b, T2V0c, T2V0d, T2V0e;  
+    wire [9:0] T2Va1, T2Vb1, T2Vc1, T2Vd1, T2Ve1; 
+    wire [9:0] T3H0, T3H1, T3H2;
 
     wire [11:0] seg_sr [8:0];
     wire [11:0] seg_sl [8:0];
-    wire [11:0] seg_cnt [8:0];
+    wire [11:0] seg_cnt0 [8:0];
+    wire [11:0] seg_cnt1 [8:0]; 
     wire [11:0] seg_lc [16:0];
     wire [11:0] seg_le [16:0];
+    wire [11:0] seg_li [16:0];
+    wire [11:0] seg_lm [16:0];
     wire [11:0] seg_lo [16:0];
     wire [11:0] seg_lr [16:0];
     wire [11:0] seg_ls [16:0];
+    wire [11:0] seg_lt [16:0];
     reg [11:0] backgrond;
     
     assign DRH0 = 340; // right score digit 
@@ -121,6 +132,22 @@ module vga_pixel_gen(
     assign DCV4 = 310;
     assign DCV5 = 330;
 
+    assign DTH0 = 570; // right time digit 
+    assign DTH1 = 576; // height: 60 width: 30 bar width: 6
+    assign DTH2 = 594;
+    assign DTH3 = 600;
+    assign DTV0 = 340;
+    assign DTV1 = 346;
+    assign DTV2 = 364;
+    assign DTV3 = 370;
+    assign DTV4 = 394;
+    assign DTV5 = 400;
+
+    assign DDH0 = 570 - 40; // left time digit 
+    assign DDH1 = 576 - 40; // height: 60 width: 30 bar width: 6
+    assign DDH2 = 594 - 40;
+    assign DDH3 = 600 - 40;
+
     assign S0H0 = 135; // score letter s
     assign S0H1 = 138; // height: 40 width: 20 bar width 3
     assign S0H2 = 152; 
@@ -143,29 +170,63 @@ module vga_pixel_gen(
 
     assign S3H0 = 210; // score letter r
     assign S3H1 = 213; // height: 40 width: 20 bar width 3
-    assign S3H2 = 215;
-    assign S3H2a = 217;
-    assign S3H2b = 219;
-    assign S3H2c = 221;
-    assign S3H2d = 223;
-    assign S3H2e = 225;
-    assign S3H3 = 227;
-    assign S3H4 = 230;
-    assign S3V3a = 175;
-    assign S3V3b = 178;
-    assign S3V3c = 181;
-    assign S3V3d = 184;
-    assign S3V3e = 187;
-    assign S3V3a1 = 176;
-    assign S3V3b1 = 179;
-    assign S3V3c1 = 182;
-    assign S3V3d1 = 185;
-    assign S3V3e1 = 186;
+    assign S3H1a = 225;
+    assign S3H1b = 226;
+    assign S3H2 = 227;
+    assign S3H3 = 230;
     
 
     assign S4H0 = 235; // score letter e
     assign S4H1 = 238; // height: 40 width: 20 bar width 3
     assign S4H2 = 255;
+    
+
+    assign T0H0 = 423; // time letter t
+    assign T0H1 = 432; // height: 40 width: 21 bar width 3
+    assign T0H2 = 435; 
+    assign T0H3 = 444;
+    assign T0V0 = 360;
+    assign T0V1 = 363;
+    assign T0V2 = 378;
+    assign T0V3 = 381;
+    assign T0V4 = 397;
+    assign T0V5 = 400;
+    
+    assign T1H0 = 449; // time letter i
+    assign T1H1 = 458; // height: 40 width: 21 bar width 3
+    assign T1H2 = 461;
+    assign T1H3 = 470;
+
+    assign T2H0 = 476; // score letter m
+    assign T2H1 = 479; // height: 40 width: 18 bar width 3
+    assign T2H2 = 491;
+    assign T2H3 = 494;
+    assign T2H1a = 480;
+    assign T2H1b = 481;
+    assign T2H1c = 482;
+    assign T2H1d = 483;
+    assign T2H1e = 484;
+    assign T2H1f = 485;
+    assign T2H1g = 486;
+    assign T2H1h = 487;
+    assign T2H1i = 488;
+    assign T2H1j = 489;
+    assign T2H1k = 490;
+    assign T2V0a = 363;
+    assign T2Va1 = 364;
+    assign T2V0b = 366;
+    assign T2Vb1 = 367;
+    assign T2V0c = 369;
+    assign T2Vc1 = 370;
+    assign T2v0d = 372;
+    assign T2Vd1 = 373;
+    assign T2V0e = 375;
+    assign T2Ve1 = 376;
+
+    assign T3H0 = 500; // time letter e
+    assign T3H1 = 503; // height: 40 width: 20 bar width 3
+    assign T3H2 = 520;
+
 
 
     // number to pixel color
@@ -181,11 +242,17 @@ module vga_pixel_gen(
         .seg3(seg_sl[3]), .seg4(seg_sl[4]), .seg5(seg_sl[5]), .seg6(seg_sl[6]),
         .seg7(seg_sl[7]), .seg8(seg_sl[8])
         );
-     vga_num2pixel n2p_cnt(
+     vga_num2pixel n2p_cnt0(
         .num(cnt0), .theme(theme),
-        .seg0(seg_cnt[0]),.seg1(seg_cnt[1]), .seg2(seg_cnt[2]),
-        .seg3(seg_cnt[3]), .seg4(seg_cnt[4]), .seg5(seg_cnt[5]), .seg6(seg_cnt[6]),
-        .seg7(seg_cnt[7]), .seg8(seg_cnt[8])
+        .seg0(seg_cnt0[0]),.seg1(seg_cnt0[1]), .seg2(seg_cnt0[2]),
+        .seg3(seg_cnt0[3]), .seg4(seg_cnt0[4]), .seg5(seg_cnt0[5]), .seg6(seg_cnt0[6]),
+        .seg7(seg_cnt0[7]), .seg8(seg_cnt0[8])
+        );
+     vga_num2pixel n2p_cnt1(
+        .num(cnt1), .theme(theme),
+        .seg0(seg_cnt1[0]),.seg1(seg_cnt1[1]), .seg2(seg_cnt1[2]),
+        .seg3(seg_cnt1[3]), .seg4(seg_cnt1[4]), .seg5(seg_cnt1[5]), .seg6(seg_cnt1[6]),
+        .seg7(seg_cnt1[7]), .seg8(seg_cnt1[8])
         );
 
     // letter to pixel color
@@ -229,6 +296,30 @@ module vga_pixel_gen(
         .segc(seg_le[12]), .segd(seg_le[13]), .sege(seg_le[14]), 
         .segf(seg_le[15]), .segg(seg_le[16]) 
     );
+    vga_letter2pixel l2p_lt(
+        .letter(`T), .theme(theme),
+        .seg0(seg_lt[0]), .seg1(seg_lt[1]), .seg2(seg_lt[2]), .seg3(seg_lt[3]),
+        .seg4(seg_lt[4]), .seg5(seg_lt[5]), .seg6(seg_lt[6]), .seg7(seg_lt[7]),
+        .seg8(seg_lt[8]), .seg9(seg_lt[9]), .sega(seg_lt[10]), .segb(seg_lt[11]),
+        .segc(seg_lt[12]), .segd(seg_lt[13]), .sege(seg_lt[14]), 
+        .segf(seg_lt[15]), .segg(seg_lt[16]) 
+    );
+    vga_letter2pixel l2p_li(
+        .letter(`I), .theme(theme),
+        .seg0(seg_li[0]), .seg1(seg_li[1]), .seg2(seg_li[2]), .seg3(seg_li[3]),
+        .seg4(seg_li[4]), .seg5(seg_li[5]), .seg6(seg_li[6]), .seg7(seg_li[7]),
+        .seg8(seg_li[8]), .seg9(seg_li[9]), .sega(seg_li[10]), .segb(seg_li[11]),
+        .segc(seg_li[12]), .segd(seg_li[13]), .sege(seg_li[14]), 
+        .segf(seg_li[15]), .segg(seg_li[16]) 
+    );
+    vga_letter2pixel l2p_lm(
+        .letter(`M), .theme(theme),
+        .seg0(seg_lm[0]), .seg1(seg_lm[1]), .seg2(seg_lm[2]), .seg3(seg_lm[3]),
+        .seg4(seg_lm[4]), .seg5(seg_lm[5]), .seg6(seg_lm[6]), .seg7(seg_lm[7]),
+        .seg8(seg_lm[8]), .seg9(seg_lm[9]), .sega(seg_lm[10]), .segb(seg_lm[11]),
+        .segc(seg_lm[12]), .segd(seg_lm[13]), .sege(seg_lm[14]), 
+        .segf(seg_lm[15]), .segg(seg_lm[16]) 
+    );
 
 
     always@(*) begin
@@ -238,6 +329,9 @@ module vga_pixel_gen(
         end
         2'b01: begin
             backgrond = 12'hfff;
+        end
+        2'b10: begin
+            backgrond = 12'he7d;
         end
         default: begin
             backgrond = 12'h000;
@@ -263,13 +357,13 @@ module vga_pixel_gen(
                         {vgaRed, vgaGreen, vgaBlue} = backgrond;
                     end
                     else if(v_cnt < DCV2) begin
-                        {vgaRed, vgaGreen, vgaBlue} = seg_cnt[5];
+                        {vgaRed, vgaGreen, vgaBlue} = seg_cnt0[5];
                     end
                     else if(v_cnt < DCV3) begin
-                        {vgaRed, vgaGreen, vgaBlue} = seg_cnt[8];
+                        {vgaRed, vgaGreen, vgaBlue} = seg_cnt0[8];
                     end
                     else if(v_cnt < DCV5) begin
-                        {vgaRed, vgaGreen, vgaBlue} = seg_cnt[4];
+                        {vgaRed, vgaGreen, vgaBlue} = seg_cnt0[4];
                     end
                     else begin
                         {vgaRed, vgaGreen, vgaBlue} = backgrond;
@@ -277,13 +371,13 @@ module vga_pixel_gen(
                 end
                 else if(h_cnt < DCH2) begin
                     if(v_cnt >= DCV0 && v_cnt < DCV1) begin
-                        {vgaRed, vgaGreen, vgaBlue} = seg_cnt[0];
+                        {vgaRed, vgaGreen, vgaBlue} = seg_cnt0[0];
                     end
                     else if(v_cnt >= DCV2 && v_cnt < DCV3) begin
-                        {vgaRed, vgaGreen, vgaBlue} = seg_cnt[6];
+                        {vgaRed, vgaGreen, vgaBlue} = seg_cnt0[6];
                     end
                     else if(v_cnt >= DCV4 && v_cnt < DCV5) begin
-                        {vgaRed, vgaGreen, vgaBlue} = seg_cnt[3];
+                        {vgaRed, vgaGreen, vgaBlue} = seg_cnt0[3];
                     end
                     else begin
                         {vgaRed, vgaGreen, vgaBlue} = backgrond;
@@ -294,13 +388,13 @@ module vga_pixel_gen(
                         {vgaRed, vgaGreen, vgaBlue} = backgrond;
                     end
                     else if(v_cnt < DCV2) begin
-                         {vgaRed, vgaGreen, vgaBlue} = seg_cnt[1];
+                         {vgaRed, vgaGreen, vgaBlue} = seg_cnt0[1];
                     end
                     else if(v_cnt < DCV3) begin
-                         {vgaRed, vgaGreen, vgaBlue} = seg_cnt[7];
+                         {vgaRed, vgaGreen, vgaBlue} = seg_cnt0[7];
                     end
                     else if(v_cnt < DCV5) begin
-                         {vgaRed, vgaGreen, vgaBlue} =seg_cnt[2];
+                         {vgaRed, vgaGreen, vgaBlue} =seg_cnt0[2];
                     end
                     else begin
                         {vgaRed, vgaGreen, vgaBlue} = backgrond;
@@ -311,6 +405,9 @@ module vga_pixel_gen(
                 end
             end
             `stage1, `pmode: begin
+                
+                // word score start here
+
                 if(h_cnt < S0H0) begin
                     {vgaRed, vgaGreen, vgaBlue} = backgrond;
                 end
@@ -407,102 +504,29 @@ module vga_pixel_gen(
                         {vgaRed, vgaGreen, vgaBlue} = backgrond;
                     end
                 end
+                else if(h_cnt < S3H1a) begin
+                    if(v_cnt >= S0V0 && v_cnt < S0V1) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lr[0];
+                    end
+                    else if(v_cnt >= S0V2 && v_cnt < S0V3) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lr[16];
+                    end
+                    else begin
+                        {vgaRed, vgaGreen, vgaBlue} = backgrond;
+                    end
+                end
                 else if(h_cnt < S3H2) begin
                     if(v_cnt >= S0V0 && v_cnt < S0V1) begin
                         {vgaRed, vgaGreen, vgaBlue} = seg_lr[0];
                     end
-                    else if(v_cnt >= S0V2 && v_cnt < S0V3) begin
+                    else if(v_cnt >= S0V2 && v_cnt < S0V5) begin
                         {vgaRed, vgaGreen, vgaBlue} = seg_lr[16];
-                    end
-                    else begin
-                        {vgaRed, vgaGreen, vgaBlue} = backgrond;
-                    end
-                end
-                else if(h_cnt < S3H2a) begin
-                    if(v_cnt >= S0V0 && v_cnt < S0V1) begin
-                        {vgaRed, vgaGreen, vgaBlue} = seg_lr[0];
-                    end
-                    else if(v_cnt >= S0V2 && v_cnt < S0V3) begin
-                        {vgaRed, vgaGreen, vgaBlue} = seg_lr[16];
-                    end
-                    else if(v_cnt >= S0V3 && v_cnt <= S3V3a) begin
-                        {vgaRed, vgaGreen, vgaBlue} = seg_lr[13];
-                    end
-                    else begin
-                        {vgaRed, vgaGreen, vgaBlue} = backgrond;
-                    end
-                end
-                else if(h_cnt < S3H2b) begin
-                    if(v_cnt >= S0V0 && v_cnt < S0V1) begin
-                        {vgaRed, vgaGreen, vgaBlue} = seg_lr[0];
-                    end
-                    else if(v_cnt >= S0V2 && v_cnt < S0V3) begin
-                        {vgaRed, vgaGreen, vgaBlue} = seg_lr[16];
-                    end
-                    else if(v_cnt >= S3V3a && v_cnt <= S3V3b) begin
-                        {vgaRed, vgaGreen, vgaBlue} = seg_lr[13];
-                    end
-                    else begin
-                        {vgaRed, vgaGreen, vgaBlue} = backgrond;
-                    end
-                end
-                else if(h_cnt < S3H2c) begin
-                    if(v_cnt >= S0V0 && v_cnt < S0V1) begin
-                        {vgaRed, vgaGreen, vgaBlue} = seg_lr[0];
-                    end
-                    else if(v_cnt >= S0V2 && v_cnt < S0V3) begin
-                        {vgaRed, vgaGreen, vgaBlue} = seg_lr[16];
-                    end
-                    else if(v_cnt >= S3V3b && v_cnt <= S3V3c) begin
-                        {vgaRed, vgaGreen, vgaBlue} = seg_lr[13];
-                    end
-                    else begin
-                        {vgaRed, vgaGreen, vgaBlue} = backgrond;
-                    end
-                end
-                else if(h_cnt < S3H2d) begin
-                    if(v_cnt >= S0V0 && v_cnt < S0V1) begin
-                        {vgaRed, vgaGreen, vgaBlue} = seg_lr[0];
-                    end
-                    else if(v_cnt >= S0V2 && v_cnt < S0V3) begin
-                        {vgaRed, vgaGreen, vgaBlue} = seg_lr[16];
-                    end
-                    else if(v_cnt >= S3V3c && v_cnt <= S3V3d) begin
-                        {vgaRed, vgaGreen, vgaBlue} = seg_lr[13];
-                    end
-                    else begin
-                        {vgaRed, vgaGreen, vgaBlue} = backgrond;
-                    end
-                end
-                else if(h_cnt < S3H2e) begin
-                    if(v_cnt >= S0V0 && v_cnt < S0V1) begin
-                        {vgaRed, vgaGreen, vgaBlue} = seg_lr[0];
-                    end
-                    else if(v_cnt >= S0V2 && v_cnt < S0V3) begin
-                        {vgaRed, vgaGreen, vgaBlue} = seg_lr[16];
-                    end
-                    else if(v_cnt >= S3V3d && v_cnt <= S3V3e) begin
-                        {vgaRed, vgaGreen, vgaBlue} = seg_lr[13];
                     end
                     else begin
                         {vgaRed, vgaGreen, vgaBlue} = backgrond;
                     end
                 end
                 else if(h_cnt < S3H3) begin
-                    if(v_cnt >= S0V0 && v_cnt < S0V1) begin
-                        {vgaRed, vgaGreen, vgaBlue} = seg_lr[0];
-                    end
-                    else if(v_cnt >= S0V2 && v_cnt < S0V3) begin
-                        {vgaRed, vgaGreen, vgaBlue} = seg_lr[16];
-                    end
-                    else if(v_cnt >= S3V3e && v_cnt <= S0V5) begin
-                        {vgaRed, vgaGreen, vgaBlue} = seg_lr[13];
-                    end
-                    else begin
-                        {vgaRed, vgaGreen, vgaBlue} = backgrond;
-                    end
-                end
-                else if(h_cnt < S3H4) begin
                     if(v_cnt >= S0V0 && v_cnt < S0V3) begin
                         {vgaRed, vgaGreen, vgaBlue} = seg_lr[1];
                     end
@@ -535,18 +559,12 @@ module vga_pixel_gen(
                         {vgaRed, vgaGreen, vgaBlue} = backgrond;
                     end
                 end
+
+                // word score end here 
+                // score digit*2 start here
+        
                 else if(h_cnt < DLH0) begin
-                /*case(score0)
-                    4'd0: {vgaRed, vgaGreen, vgaBlue} = 12'hfff;
-                    4'd1: {vgaRed, vgaGreen, vgaBlue} = 12'h00f;
-                    4'd2: {vgaRed, vgaGreen, vgaBlue} = 12'h0f0;
-                    4'd3: {vgaRed, vgaGreen, vgaBlue} = 12'hf00;
-                    4'd4: {vgaRed, vgaGreen, vgaBlue} = 12'h0ff;
-                    4'd5: {vgaRed, vgaGreen, vgaBlue} = 12'hf0f;
-                    4'd6: {vgaRed, vgaGreen, vgaBlue} = 12'hff0;
-                    default: {vgaRed, vgaGreen, vgaBlue} = backgrond;
-                endcase*/
-                {vgaRed, vgaGreen, vgaBlue} = backgrond;
+                    {vgaRed, vgaGreen, vgaBlue} = backgrond;
                 end
                 else if(h_cnt < DLH1) begin
                     if(v_cnt >= DV0 && v_cnt < DV2) begin
@@ -635,12 +653,314 @@ module vga_pixel_gen(
                         {vgaRed, vgaGreen, vgaBlue} = backgrond;
                     end
                 end
+
+                // score digit*2 end here
+                // word time start here
+
+                else if(h_cnt < T0H0) begin
+                    {vgaRed, vgaGreen, vgaBlue} = backgrond;
+                end
+                else if(h_cnt < T0H1) begin
+                    if(v_cnt >= T0V0 && v_cnt < T0V1) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lt[0];
+                    end
+                    else begin
+                        {vgaRed, vgaGreen, vgaBlue} = backgrond;
+                    end
+                end
+                else if(h_cnt < T0H2) begin
+                    if(v_cnt >= T0V0 && v_cnt < T0V5) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lt[16];
+                    end
+                    else begin
+                        {vgaRed, vgaGreen, vgaBlue} = backgrond;
+                    end
+                end
+                else if(h_cnt < T0H3)begin
+                    if(v_cnt >= T0V0 && v_cnt < T0V1) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lt[0];
+                    end
+                    else begin
+                        {vgaRed, vgaGreen, vgaBlue} = backgrond;
+                    end
+                end
+                else if(h_cnt < T1H0) begin
+                    {vgaRed, vgaGreen, vgaBlue} = backgrond;
+                end
+                else if(h_cnt < T1H1) begin
+                    if(v_cnt >= T0V0 && v_cnt < T0V1) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_li[0];
+                    end
+                    else if(v_cnt >= T0V4 && v_cnt < T0V5) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_li[0];
+                    end
+                    else begin
+                        {vgaRed, vgaGreen, vgaBlue} = backgrond;
+                    end
+                end
+                else if(h_cnt < T1H2) begin
+                    if(v_cnt >= T0V0 && v_cnt < T0V5) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_li[16];
+                    end
+                    else begin
+                        {vgaRed, vgaGreen, vgaBlue} = backgrond;
+                    end
+                end
+                else if(h_cnt < T1H3) begin
+                    if(v_cnt >= T0V0 && v_cnt < T0V1) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_li[0];
+                    end
+                    else if(v_cnt >= T0V4 && v_cnt < T0V5) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_li[0];
+                    end
+                    else begin
+                        {vgaRed, vgaGreen, vgaBlue} = backgrond;
+                    end
+                end
+                else if(h_cnt < T2H0) begin
+                    {vgaRed, vgaGreen, vgaBlue} = backgrond;
+                end
+                else if(h_cnt < T2H1) begin
+                    if(v_cnt >= T0V0 && v_cnt < T0V5) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lm[5];
+                    end
+                    else begin
+                        {vgaRed, vgaGreen, vgaBlue} = backgrond;
+                    end
+                end
+                else if(h_cnt < T2H1a) begin
+                    if(v_cnt >= T0V0 && v_cnt <= T2V0a) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lm[10];
+                    end
+                    else begin
+                        {vgaRed, vgaGreen, vgaBlue} = backgrond;
+                    end 
+                end
+                else if(h_cnt < T2H1b) begin
+                    if(v_cnt >= T2V0a && v_cnt <= T2Va1) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lm[10];
+                    end
+                    else begin
+                        {vgaRed, vgaGreen, vgaBlue} = backgrond;
+                    end
+                end
+                else if(h_cnt < T2H1c) begin
+                    if(v_cnt >= T2Va1 && v_cnt <= T2V0b) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lm[10];
+                    end
+                    else begin
+                        {vgaRed, vgaGreen, vgaBlue} = backgrond;
+                    end 
+                end
+                else if(h_cnt < T2H1d) begin
+                    if(v_cnt >= T2V0b && v_cnt <= T2Vb1) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lm[10];
+                    end
+                    else begin
+                        {vgaRed, vgaGreen, vgaBlue} = backgrond;
+                    end
+                end
+                else if(h_cnt < T2H1e) begin
+                    if(v_cnt >= T2Vb1 && v_cnt <= T2V0c) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lm[10];
+                    end
+                    else begin
+                        {vgaRed, vgaGreen, vgaBlue} = backgrond;
+                    end 
+                end
+                else if(h_cnt < T2H1f) begin
+                    if(v_cnt >= T2Vb1 && v_cnt <= T2V0c) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lm[10];
+                    end
+                    else begin
+                        {vgaRed, vgaGreen, vgaBlue} = backgrond;
+                    end
+                end
+                else if(h_cnt < T2H1g) begin
+                    if(v_cnt >= T2Vb1 && v_cnt <= T2V0c) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lm[10];
+                    end
+                    else begin
+                        {vgaRed, vgaGreen, vgaBlue} = backgrond;
+                    end 
+                end
+                else if(h_cnt < T2H1h) begin
+                    if(v_cnt >= T2V0b && v_cnt <= T2Vb1) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lm[10];
+                    end
+                    else begin
+                        {vgaRed, vgaGreen, vgaBlue} = backgrond;
+                    end
+                end
+                else if(h_cnt < T2H1i) begin
+                    if(v_cnt >= T2Va1 && v_cnt <= T2V0b) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lm[10];
+                    end
+                    else begin
+                        {vgaRed, vgaGreen, vgaBlue} = backgrond;
+                    end 
+                end
+                else if(h_cnt < T2H1j) begin
+                    if(v_cnt >= T2V0a && v_cnt <= T2Va1) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lm[10];
+                    end
+                    else begin
+                        {vgaRed, vgaGreen, vgaBlue} = backgrond;
+                    end
+                end
+                else if(h_cnt < T2H1k) begin
+                    if(v_cnt >= T0V0 && v_cnt <= T2V0a) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lm[10];
+                    end
+                    else begin
+                        {vgaRed, vgaGreen, vgaBlue} = backgrond;
+                    end
+                end
+                else if(h_cnt < T2H2) begin
+                    if(v_cnt >= T0V0 && v_cnt <= T2V0a) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lm[10];
+                    end
+                    else begin
+                        {vgaRed, vgaGreen, vgaBlue} = backgrond;
+                    end
+                end
+                else if(h_cnt < T2H3) begin
+                    if(v_cnt >= T0V0 && v_cnt < T0V5) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lm[1];
+                    end
+                    else begin
+                        {vgaRed, vgaGreen, vgaBlue} = backgrond;
+                    end
+                end
+                else if(h_cnt < T3H0) begin
+                    {vgaRed, vgaGreen, vgaBlue} = backgrond;
+                end
+                else if(h_cnt < T3H1) begin
+                    if(v_cnt >= T0V0 && v_cnt < T0V5) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_le[5];
+                    end
+                    else begin
+                        {vgaRed, vgaGreen, vgaBlue} = backgrond;
+                    end
+                end
+                else if(h_cnt < T3H2) begin
+                    if(v_cnt >= T0V0 && v_cnt < T0V1) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_le[0];
+                    end
+                    else if(v_cnt >= T0V2 && v_cnt < T0V3) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_le[16];
+                    end
+                    else if(v_cnt >= T0V4 && v_cnt < T0V5) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_le[3];
+                    end
+                    else begin
+                        {vgaRed, vgaGreen, vgaBlue} = backgrond;
+                    end
+                end
+
+                // word time end here
+                // time digit*2 start here
+
+                else if(h_cnt < DDH0) begin
+                {vgaRed, vgaGreen, vgaBlue} = backgrond;
+                end
+                else if(h_cnt < DDH1) begin
+                    if(v_cnt >= DTV0 && v_cnt < DTV2) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_cnt1[5];
+                    end
+                    else if(v_cnt >= DTV2 && v_cnt < DTV3) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_cnt1[8];
+                    end
+                    else if(v_cnt >= DTV3 && v_cnt < DTV5) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_cnt1[4];
+                    end
+                    else begin
+                        {vgaRed, vgaGreen, vgaBlue} = backgrond;
+                    end
+                end
+                else if(h_cnt < DDH2) begin
+                    if(v_cnt >= DTV0 && v_cnt < DTV1) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_cnt1[0];
+                    end
+                    else if(v_cnt >= DTV2 && v_cnt < DTV3) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_cnt1[6];
+                    end
+                    else if(v_cnt >= DTV4 && v_cnt < DTV5) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_cnt1[3];
+                    end
+                    else begin
+                        {vgaRed, vgaGreen, vgaBlue} = backgrond;
+                    end
+                end
+                else if(h_cnt < DDH3) begin
+                    if(v_cnt >= DTV0 && v_cnt < DTV2) begin
+                         {vgaRed, vgaGreen, vgaBlue} = seg_cnt1[1];
+                    end
+                    else if(v_cnt >= DTV2 && v_cnt < DTV3) begin
+                         {vgaRed, vgaGreen, vgaBlue} = seg_cnt1[7];
+                    end
+                    else if(v_cnt >= DTV3 && v_cnt < DTV5) begin
+                         {vgaRed, vgaGreen, vgaBlue} =seg_cnt1[2];
+                    end
+                    else begin
+                        {vgaRed, vgaGreen, vgaBlue} = backgrond;
+                    end
+                end
+                else if(h_cnt < DTH0) begin
+                    {vgaRed, vgaGreen, vgaBlue} = backgrond;
+                end
+                else if(h_cnt < DTH1) begin
+                    if(v_cnt >= DTV0 && v_cnt < DTV2) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_cnt0[5];
+                    end
+                    else if(v_cnt >= DTV2 && v_cnt < DTV3) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_cnt0[8];
+                    end
+                    else if(v_cnt >= DTV3 && v_cnt < DTV5) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_cnt0[4];
+                    end
+                    else begin
+                        {vgaRed, vgaGreen, vgaBlue} = backgrond;
+                    end
+                end
+                else if(h_cnt < DTH2) begin
+                    if(v_cnt >= DTV0 && v_cnt < DTV1) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_cnt0[0];
+                    end
+                    else if(v_cnt >= DTV2 && v_cnt < DTV3) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_cnt0[6];
+                    end
+                    else if(v_cnt >= DTV4 && v_cnt < DTV5) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_cnt0[3];
+                    end
+                    else begin
+                         {vgaRed, vgaGreen, vgaBlue} = backgrond;
+                    end
+                end
+                else if(h_cnt < DTH3) begin
+                    if(v_cnt >= DTV0 && v_cnt < DTV2) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_cnt0[1];
+                    end
+                    else if(v_cnt >= DTV2 && v_cnt < DTV3) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_cnt0[7];
+                    end
+                    else if(v_cnt >= DTV3 && v_cnt < DTV5) begin
+                        {vgaRed, vgaGreen, vgaBlue} =seg_cnt0[2];
+                    end
+                    else begin
+                        {vgaRed, vgaGreen, vgaBlue} = backgrond;
+                    end
+                end
+
+                // time digit*2 end here
+
                 else begin
                     {vgaRed, vgaGreen, vgaBlue} = backgrond;
                 end
             end
             default: begin
                 {vgaRed, vgaGreen, vgaBlue} = backgrond;
+                
             end 
             endcase
         end 

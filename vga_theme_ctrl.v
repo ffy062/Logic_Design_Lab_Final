@@ -20,6 +20,8 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
+// 2'b00 dark 2'b01 bright 2'b10 costum
+
 module vga_theme_ctrl(clk, rst, chg, theme);
 input clk, rst, chg;
 output reg [1:0] theme;
@@ -35,7 +37,7 @@ end
 
 always@(*) begin
     if(chg == 1'b1) begin
-        n_theme = (theme == 2'b00)? 2'b01 : 2'b00;
+        n_theme = (theme == 2'b10)? 2'b00 : theme + 2'b01;
     end
     else begin
         n_theme = theme;
