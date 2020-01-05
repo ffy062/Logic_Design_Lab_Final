@@ -79,6 +79,10 @@ always@(*) begin
             backgrond = 12'hfff;
             wcolor1 = 12'h000;
         end
+        2'b10: begin
+            backgrond = 12'he7d;
+            wcolor1 = 12'hfff;
+        end
         default: begin
             backgrond = 12'h000;
             wcolor1 = 12'hfff;
@@ -153,6 +157,25 @@ always@(*) begin
             seg4 = wcolor1;
             seg5 = wcolor1;
             seg6 = wcolor1;
+            seg7 = wcolor1;
+            seg8 = wcolor1;
+            seg9 = backgrond;
+            sega = backgrond;
+            segb = backgrond;
+            segc = backgrond;
+            segd = backgrond;
+            sege = backgrond;
+            segf = backgrond;
+            segg = wcolor1;
+        end
+        `G: begin
+            seg0 = wcolor1;
+            seg1 = backgrond;
+            seg2 = wcolor1;
+            seg3 = wcolor1;
+            seg4 = wcolor1;
+            seg5 = wcolor1;
+            seg6 = backgrond;
             seg7 = wcolor1;
             seg8 = wcolor1;
             seg9 = backgrond;
@@ -306,14 +329,14 @@ always@(*) begin
             seg5 = backgrond;
             seg6 = backgrond;
             seg7 = backgrond;
-            seg8 = wcolor1;
-            seg9 = wcolor1;
+            seg8 = backgrond;
+            seg9 = backgrond;
             sega = backgrond;
             segb = backgrond;
             segc = backgrond;
             segd = backgrond;
-            sege = backgrond;
-            segf = backgrond;
+            sege = wcolor1;
+            segf = wcolor1;
             segg = wcolor1;
         end
         default: begin
