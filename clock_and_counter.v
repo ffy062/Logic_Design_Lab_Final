@@ -24,6 +24,48 @@ assign out = (cnt == 32'd0)? 1'b1 : 1'b0;
 
 endmodule
 
+// point five sceond counter for light shine
+module counter2Hz(clk, rst, out);
+input clk, rst;
+output out;
+reg [30:0] cnt;
+wire [30:0]next_cnt;
+// 31'd49999999
+
+always@(posedge clk) begin
+    if(rst == 1'b1) begin
+        cnt <= 31'd0;
+    end
+    else begin
+        cnt <= next_cnt;
+    end
+end
+assign next_cnt = (cnt == 31'd49999999)? 31'd0 : cnt + 31'd1;
+assign out = (cnt == 31'd49999999)? 1'b1 : 1'b0; 
+
+endmodule
+
+// counter for ambiant lighting
+module counter10Hz(clk, rst, out);
+input clk, rst;
+output out;
+reg [24:0] cnt;
+wire [24:0]next_cnt;
+// 30'd9999999
+
+always@(posedge clk) begin
+    if(rst == 1'b1) begin
+        cnt <= 25'd0;
+    end
+    else begin
+        cnt <= next_cnt;
+    end
+end
+assign next_cnt = (cnt == 25'd9999999)? 25'd0 : cnt + 25'd1;
+assign out = (cnt == 25'd9999999)? 1'b1 : 1'b0; 
+
+endmodule
+
 
 // press for 2 second
 module long_press(clk, press, out);
@@ -47,7 +89,7 @@ assign out = (cnt == 32'd0)? 1'b1 : 1'b0;
 endmodule
 
 
-
+// one sceond clock
 module clock1Hz(clk, rst, nclk);
 input clk, rst;
 output nclk;
