@@ -31,13 +31,15 @@ input [3:0] score0, score1, cnt0, cnt1;
 output [3:0] vgaRed, vgaGreen, vgaBlue;
 output hsync, vsync;
 
-wire clk_25Mhz;
+wire clk_25Mhz, s_clk, a_clk;
 wire valid;
 wire [9:0] h_cnt, v_cnt; // h: 640, v: 480
 wire v_sync, h_sync;
 wire [1:0] theme;
 
 clock_25MHz vga_clk(.clk(clk), .rst(rst), .nclk(clk_25Mhz));
+counter2Hz shine_clk(.clk(clk), .rst(rst), .out(s_clk));
+counter10Hz ambiant_clk(.clk(clk), .rst(rst), .out(a_clk));
 
 vga_controll vga_ctrl(
     .clk(clk_25Mhz), .rst(rst),
@@ -47,8 +49,8 @@ vga_controll vga_ctrl(
 vga_theme_ctrl theme_ctrl(.clk(clk), .rst(rst), .chg(theme_c), .theme(theme));
 
 vga_pixel_gen display(
-    .h_cnt(h_cnt), .v_cnt(v_cnt), .valid(valid),
-    .theme(theme), .state(state),
+    .h_cnt(h_cnt), .v_cnt(v_cnt), .valid(valid), .clk(clk), 
+    .theme(theme), .state(state), .ambiant(a_clk), .shine(s_clk),
     .score0(score0), .score1(score1), .cnt0(cnt0), .cnt1(cnt1),
     .vgaRed(vgaRed), .vgaGreen(vgaGreen), .vgaBlue(vgaBlue)
 );

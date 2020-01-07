@@ -51,41 +51,72 @@
 // --   --   --
 // 5 10 14 11 1
 // -   ----   -
-// 8--6-16-7--9
+// 8--6-15-7--9
 // -   ----   -
-// 4 12 15 13 2
+// 4 12 14 13 2
 // --   --   --
 // -----03-----
 
 module vga_letter2pixel(
-    letter, theme,
+    letter, theme, ambiant, shine, clk, valid, 
     seg0, seg1, seg2, seg3, seg4, seg5, seg6, seg7, seg8, 
-    seg9, sega, segb, segc, segd, sege, segf, segg
+    seg9, sega, segb, segc, segd, sege, segf
     );
 input [4:0] letter;
 input [1:0]theme;
+input ambiant, shine, clk, valid;
 output reg[11:0] seg0, seg1, seg2, seg3, seg4, seg5, seg6, seg7, seg8;
-output reg[11:0] seg9, sega, segb, segc, segd, sege, segf, segg;
+output reg[11:0] seg9, sega, segb, segc, segd, sege, segf;
 
 reg [11:0] backgrond, wcolor1;
 
-always@(*) begin
+always@(posedge clk) begin
     case(theme)
         2'b00: begin
-            backgrond = 12'h000;
-            wcolor1 = 12'hfff;
+            backgrond <= 12'h000;
+            if(ambiant == 1'b1 && valid == 1'b1) begin
+                wcolor1 <= wcolor1 + 12'h001;
+            end
+            else begin
+                if(shine == 1'b1 && valid == 1'b1) begin
+                    wcolor1 <= (wcolor1 == 12'hfff)? 12'hf00 : 12'hfff;
+                end
+                else begin
+                    wcolor1 <= wcolor1;
+                end
+            end
         end
         2'b01: begin
-            backgrond = 12'hfff;
-            wcolor1 = 12'h000;
+            backgrond <= 12'hfff;
+            if(ambiant == 1'b1) begin
+                wcolor1 <= wcolor1 + 12'h001;
+            end
+            else begin
+                if(shine == 1'b1) begin
+                    wcolor1 <= (wcolor1 == 12'h000)? 12'hf00 : 12'h000;
+                end
+                else begin
+                    wcolor1 <= wcolor1;
+                end
+            end
         end
         2'b10: begin
-            backgrond = 12'he7d;
-            wcolor1 = 12'hfff;
+            backgrond <= 12'he7d;
+            if(ambiant == 1'b1) begin
+                wcolor1 <= wcolor1 + 12'h001;
+            end
+            else begin
+                if(shine == 1'b1) begin
+                    wcolor1 <= (wcolor1 == 12'hfff)? 12'h8f0 : 12'hfff;
+                end
+                else begin
+                    wcolor1 <= wcolor1;
+                end
+            end
         end
         default: begin
-            backgrond = 12'h000;
-            wcolor1 = 12'hfff;
+            backgrond <= 12'h000;
+            wcolor1 <= 12'hfff;
         end
     endcase
 end
@@ -108,8 +139,7 @@ always@(*) begin
             segc = backgrond;
             segd = backgrond;
             sege = wcolor1;
-            segf = backgrond;
-            segg = wcolor1;
+            segf = wcolor1;
         end
         `B: begin
             seg0 = wcolor1;
@@ -127,8 +157,7 @@ always@(*) begin
             segc = backgrond;
             segd = backgrond;
             sege = backgrond;
-            segf = backgrond;
-            segg = backgrond;
+            segf = wcolor1;
         end
         `C: begin
             seg0 = wcolor1;
@@ -147,7 +176,6 @@ always@(*) begin
             segd = backgrond;
             sege = backgrond;
             segf = backgrond;
-            segg = backgrond;
         end
         `E: begin
             seg0 = wcolor1;
@@ -165,8 +193,7 @@ always@(*) begin
             segc = backgrond;
             segd = backgrond;
             sege = backgrond;
-            segf = backgrond;
-            segg = wcolor1;
+            segf = wcolor1;
         end
         `G: begin
             seg0 = wcolor1;
@@ -184,8 +211,7 @@ always@(*) begin
             segc = backgrond;
             segd = backgrond;
             sege = backgrond;
-            segf = backgrond;
-            segg = wcolor1;
+            segf = wcolor1;
         end
         `I: begin
             seg0 = wcolor1;
@@ -196,15 +222,14 @@ always@(*) begin
             seg5 = backgrond;
             seg6 = backgrond;
             seg7 = backgrond;
-            seg8 = wcolor1;
-            seg9 = wcolor1;
+            seg8 = backgrond;
+            seg9 = backgrond;
             sega = backgrond;
             segb = backgrond;
             segc = backgrond;
-            segd = backgrond;
-            sege = backgrond;
-            segf = backgrond;
-            segg = wcolor1;
+            segd = wcolor1;
+            sege = wcolor1;
+            segf = wcolor1;
         end
         `K: begin
             seg0 = backgrond;
@@ -215,15 +240,14 @@ always@(*) begin
             seg5 = wcolor1;
             seg6 = backgrond;
             seg7 = backgrond;
-            seg8 = backgrond;
+            seg8 = wcolor1;
             seg9 = backgrond;
             sega = backgrond;
             segb = wcolor1;
             segc = backgrond;
             segd = wcolor1;
             sege = backgrond;
-            segf = backgrond;
-            segg = wcolor1;
+            segf = wcolor1;
         end
         `L: begin
             seg0 = backgrond;
@@ -242,7 +266,6 @@ always@(*) begin
             segd = backgrond;
             sege = backgrond;
             segf = backgrond;
-            segg = backgrond;
         end
         `M: begin
             seg0 = backgrond;
@@ -260,8 +283,7 @@ always@(*) begin
             segc = backgrond;
             segd = backgrond;
             sege = backgrond;
-            segf = backgrond;
-            segg = wcolor1;
+            segf = wcolor1;
         end
         `O: begin
             seg0 = wcolor1;
@@ -280,7 +302,24 @@ always@(*) begin
             segd = backgrond;
             sege = backgrond;
             segf = backgrond;
-            segg = backgrond;
+        end
+        `P: begin
+            seg0 = wcolor1;
+            seg1 = wcolor1;
+            seg2 = backgrond;
+            seg3 = backgrond;
+            seg4 = wcolor1;
+            seg5 = wcolor1;
+            seg6 = wcolor1;
+            seg7 = wcolor1;
+            seg8 = wcolor1;
+            seg9 = wcolor1;
+            sega = backgrond;
+            segb = backgrond;
+            segc = backgrond;
+            segd = backgrond;
+            sege = backgrond;
+            segf = wcolor1;
         end
         `R: begin
             seg0 = wcolor1;
@@ -298,8 +337,7 @@ always@(*) begin
             segc = backgrond;
             segd = wcolor1;
             sege = backgrond;
-            segf = backgrond;
-            segg = wcolor1;
+            segf = wcolor1;
         end
         `S: begin
             seg0 = wcolor1;
@@ -317,8 +355,7 @@ always@(*) begin
             segc = backgrond;
             segd = backgrond;
             sege = backgrond;
-            segf = backgrond;
-            segg = wcolor1;
+            segf = wcolor1;
         end
         `T: begin
             seg0 = wcolor1;
@@ -337,7 +374,6 @@ always@(*) begin
             segd = backgrond;
             sege = wcolor1;
             segf = wcolor1;
-            segg = wcolor1;
         end
         default: begin
             seg0 = backgrond;
@@ -356,7 +392,6 @@ always@(*) begin
             segd = backgrond;
             sege = backgrond;
             segf = backgrond;
-            segg = backgrond;
         end
     endcase
 end
