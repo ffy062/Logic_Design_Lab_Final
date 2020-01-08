@@ -20,14 +20,14 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module score_and_display(clk, goal, dis_score, score0, score1);
-input clk, goal, dis_score;
+module score_and_display(clk, goal, rst, dis_score, score0, score1);
+input clk, goal, dis_score, rst;
 output reg [3:0] score0, score1;
 reg [3:0] next_score0, next_score1;
 
 
 always@(posedge clk) begin
-    if(dis_score == 1'b0) begin
+    if(dis_score == 1'b0 || rst) begin
         score0 <= 4'd0;
         score1 <= 4'd0;
     end
