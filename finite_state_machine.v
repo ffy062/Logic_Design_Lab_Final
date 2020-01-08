@@ -11,6 +11,8 @@
 `define lose 4'd8
 `define finish 4'd9
 `define go 4'd10
+`define wait_slave 4'd11
+`define compete 4'd12
 
 
 
@@ -18,21 +20,26 @@ module fsm(
     clk, 
     rst, start, stop, pmode, back,
     goal, sound, 
+    s_start, s_goal, 
     dig0, dig1, dig2, dig3, c_state,
+    digs0, digs1, 
     pmod1, pmod2, pmod4
     );
 
 input clk;
 input rst, start, stop, pmode, back;
 input goal, sound;
+input s_start, s_goal;
 output reg [3:0] dig0, dig1, dig2, dig3;
+output [3:0] digs0, digs1;
 output reg [3:0] c_state;
 output pmod1, pmod2, pmod4;
 
 reg [3:0] state, n_state;
 reg [3:0] cnt_d0, cnt_d1, n_cnt_d0, n_cnt_d1;
-wire [3:0] score0, score1;
+wire [3:0] score0, score1, scores0, scores1;
 wire en_cnt, en_goal, cnt_play, s_rst;
+wire en_sgoal, dis_sscore;
 reg cnt_start, sp;
 reg [2:0] stage, n_stage;
 
@@ -73,6 +80,9 @@ always@(*) begin
         `stage3: begin
             n_stage = (score1 > 8 || (score1 == 8 && score0 >= 5))? 3'd4 : 3'd3;
         end
+        `wait_slave: begin
+            n_stage = 5;
+        end
         default: begin
             n_stage = stage;
         end
@@ -96,7 +106,12 @@ always@(*) begin
                         n_state = `pmode;
                     end
                     else begin
-                        n_state = `rst;
+                        if(stop == 1'b1) begin
+                            n_state = `wait_slave;
+                        end
+                        else begin
+                            n_state = `rst;
+                        end
                     end
                 end
             end
@@ -112,6 +127,9 @@ always@(*) begin
                     end
                     else if(stage == 3) begin
                         n_state = `stage3;
+                    end
+                    else if(stage == 5) begin
+                        n_state = `compete;
                     end
                     else begin
                         n_state = `rst;
@@ -197,6 +215,25 @@ always@(*) begin
                     n_state = `lose;
                 end
             end
+            `wait_slave: begin
+                if(s_start == 1'b0) begin
+                    n_state = `b_play;
+                end
+                else begin
+                    if(back == 1'b1) begin
+                        n_state = `rst;
+                    end
+                    else begin
+                        n_state = `wait_slave;
+                    end
+                end
+            end
+            `compete: begin
+                n_state = `compete;
+                if(back == 1'b1) begin
+                    n_state = `rst;
+                end
+            end
             default: n_state = `rst;
         endcase
     end
@@ -215,15 +252,28 @@ end
 
 // signal for score display, valid goal, play count down sound
 assign dis_score = (state == `rst || state == `b_rst)? 1'b0 : 1'b1;
-assign en_goal = ((state == `stage1 || state == `stage2 || state == `stage3
+assign en_goal = ((state == `stage1 || state == `stage2 || state == `stage3 || state == `compete
         || state == `pmode) && goal == 1'b1 && sp == 1'b0)? 1'b1 : 1'b0;
 assign cnt_play = (cnt_start == 1'b1 && n_state == `b_play && sound == 1)? 1'b1 : 1'b0;
 assign s_rst = (state == `pmode && start == 1'b1)? 1'b1 : 1'b0;
+assign en_sgoal = ((state == `compete) && s_goal == 1'b1)? 1'b1 : 1'b0;
+assign dis_sscore = (state == `compete)? 1'b1 : 1'b0;
 
 // module for 1 sec counter, currnet score to seven segment, audio top module
 counter one_sec(.clk(clk), .start(cnt_start), .stop(sp), .out(en_cnt));
-score_and_display sad(.clk(clk), .goal(en_goal), .rst(s_rst), .dis_score(dis_score), .score0(score0), .score1(score1));
-audio_top audio(.clk(clk), .rst(rst), .goal(en_goal & sound), .cnt(cnt_play), .pmod_1(pmod1), .pmod_2(pmod2), .pmod_4(pmod4));
+score_and_display sad(
+    .clk(clk), .goal(en_goal), .rst(s_rst),
+    .dis_score(dis_score), .score0(score0), .score1(score1)
+    );
+
+score_and_display s_sad(
+    .clk(clk), .goal(en_sgoal), .rst(1'b0),
+    .dis_score(dis_sscore), .score0(scores0), .score1(scores1)
+    );
+audio_top audio(
+    .clk(clk), .rst(rst), .goal((en_goal||en_sgoal) & sound), 
+    .cnt(cnt_play), .pmod_1(pmod1), .pmod_2(pmod2), .pmod_4(pmod4)
+    );
 
 
 // always block for count down signal
@@ -239,7 +289,7 @@ always@(*) begin
             n_cnt_d1 = 4'd0;
             cnt_start = 1'b1;
         end
-        else if(state == `win) begin
+        else if(state == `win || state == `wait_slave) begin
             n_cnt_d0 = 3;
             n_cnt_d1 = 0;
             cnt_start = 1;
@@ -266,6 +316,10 @@ always@(*) begin
                                 else if(stage == 3) begin
                                     n_cnt_d0 = 0;
                                     n_cnt_d1 = 2;
+                                end
+                                else if(stage == 5) begin
+                                    n_cnt_d0 = 0;
+                                    n_cnt_d1 = 3;
                                 end
                                 else begin
                                     n_cnt_d0 = 0;
@@ -338,6 +392,12 @@ always@(*) begin
                 dig2 = 4'd10;
                 dig3 = 4'd10;
         end
+        `compete: begin
+            dig0 = score0;
+            dig1 = score1;
+            dig2 = scores0;
+            dig3 = scores1;
+        end
         default: begin
             dig0 = 4'd0;
             dig1 = 4'd0;
@@ -346,6 +406,8 @@ always@(*) begin
         end
     endcase
 end
+assign digs0 = scores0;
+assign digs1 = scores1;
 
 
 endmodule

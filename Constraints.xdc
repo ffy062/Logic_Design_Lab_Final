@@ -123,11 +123,11 @@ set_property IOSTANDARD LVCMOS33 [get_ports btnD]
 
 ##Pmod Header JA
 ##Sch name = JA1
-#set_property PACKAGE_PIN J1 [get_ports {JA[0]}]
-#set_property IOSTANDARD LVCMOS33 [get_ports {JA[0]}]
+set_property PACKAGE_PIN J1 [get_ports {s_start}]
+set_property IOSTANDARD LVCMOS33 [get_ports {s_start}]
 ##Sch name = JA2
-#set_property PACKAGE_PIN L2 [get_ports {JA[1]}]
-#set_property IOSTANDARD LVCMOS33 [get_ports {JA[1]}]
+set_property PACKAGE_PIN L2 [get_ports {s_goal}]
+set_property IOSTANDARD LVCMOS33 [get_ports {s_goal}]
 ##Sch name = JA3
 #set_property PACKAGE_PIN J2 [get_ports {JA[2]}]
 #set_property IOSTANDARD LVCMOS33 [get_ports {JA[2]}]
