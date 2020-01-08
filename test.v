@@ -34,6 +34,7 @@ module top(
     btnU, btnC, btnR, btnL, btnD,
     sw0, sw1, 
     goal,
+    s_start, s_goal, 
     seg, an, 
     pmod_1, pmod_2, pmod_4,
     vgaRed, vgaGreen, vgaBlue, hsync, vsync
@@ -42,6 +43,7 @@ input clk;
 input btnU, btnC, btnR, btnL, btnD;
 input goal;
 input sw0, sw1;
+input s_start, s_goal;
 output [6:0] seg;
 output [3:0] an;
 output pmod_1, pmod_2, pmod_4;
@@ -51,7 +53,7 @@ output hsync, vsync;
 wire fsmclk, dclk, ssclk;
 wire goal_d, goal_o, btnU_o, btnU_l, btnC_d, btnC_o, btnR_d, btnR_o;
 wire btnL_d, btnL_o, btnD_d, btnD_o; 
-wire [3:0] dis0, dis1, dis2, dis3, num;
+wire [3:0] dis0, dis1, dis2, dis3, num, digs0, digs1;
 wire [3:0] state;
 
 clock1Hz clk1s(clk, btnU_o, fsmclk);
@@ -80,7 +82,9 @@ one_pause op_d(clk, btnD_d, btnD_o);
 fsm basket(
     .clk(clk), .rst(btnU_l), .start(btnC_o), .stop(btnR_o),
     .pmode(btnL_o), .back(btnD_o), .goal(goal_o), .sound(sw0), 
+    .s_start(s_start), .s_goal(s_goal), 
     .dig0(dis0), .dig1(dis1), .dig2(dis2), .dig3(dis3), .c_state(state), 
+    .digs0(digs0), .digs1(digs1),
     .pmod1(pmod_1), .pmod2(pmod_2), .pmod4(pmod_4)
     );
 
@@ -90,6 +94,7 @@ sevensegment ss_d(num, seg);
 VGA_top vga_display(
     .clk(clk), .rst(btnU_l), .theme_c(btnU_o), 
     .state(state), .score0(dis0), .score1(dis1), .cnt0(dis2), .cnt1(dis3),
+    .scores0(digs0), .scores1(digs1), 
     .vgaRed(vgaRed), .vgaGreen(vgaGreen), .vgaBlue(vgaBlue), 
     .hsync(hsync), .vsync(vsync)
     );
