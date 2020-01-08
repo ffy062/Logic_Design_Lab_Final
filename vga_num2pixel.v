@@ -23,7 +23,7 @@
 // ---0---
 // 5     1
 // -     - 
-// 8--6--7
+// 7--6--8
 // -     -
 // 4     2
 // ---3---
@@ -80,8 +80,8 @@ always@(*) begin
             seg4 = backgrond;
             seg5 = backgrond;
             seg6 = backgrond;
-            seg7 = wcolor1;
-            seg8 = backgrond;
+            seg7 = backgrond;
+            seg8 = wcolor1;
         end
         4'd2: begin
             seg0 = wcolor1;
@@ -102,8 +102,8 @@ always@(*) begin
             seg4 = backgrond;
             seg5 = backgrond;
             seg6 = wcolor1;
-            seg7 = wcolor1;
-            seg8 = backgrond;
+            seg7 = backgrond;
+            seg8 = wcolor1;
         end
         4'd4: begin
             seg0 = backgrond;
@@ -146,8 +146,8 @@ always@(*) begin
             seg4 = backgrond;
             seg5 = backgrond;
             seg6 = backgrond;
-            seg7 = wcolor1;
-            seg8 = backgrond;
+            seg7 = backgrond;
+            seg8 = wcolor1;
         end
         4'd8: begin
             seg0 = wcolor1;
@@ -181,6 +181,17 @@ always@(*) begin
             seg6 = wcolor1;
             seg7 = wcolor1;
             seg8 = wcolor1;
+        end
+        4'd11: begin
+            seg0 = backgrond;
+            seg1 = backgrond;
+            seg2 = backgrond;
+            seg3 = backgrond;
+            seg4 = backgrond;
+            seg5 = backgrond;
+            seg6 = backgrond;
+            seg7 = backgrond;
+            seg8 = backgrond;
         end
         default: begin
             seg0 = backgrond;

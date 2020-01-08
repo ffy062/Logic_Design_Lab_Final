@@ -79,7 +79,7 @@ one_pause op_d(clk, btnD_d, btnD_o);
 
 fsm basket(
     .clk(clk), .rst(btnU_l), .start(btnC_o), .stop(btnR_o),
-    .pmode(btnL_o), .back(btnD_o), .goal(goal_o), 
+    .pmode(btnL_o), .back(btnD_o), .goal(goal_o), .sound(sw0), 
     .dig0(dis0), .dig1(dis1), .dig2(dis2), .dig3(dis3), .c_state(state), 
     .pmod1(pmod_1), .pmod2(pmod_2), .pmod4(pmod_4)
     );

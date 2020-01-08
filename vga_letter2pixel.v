@@ -58,59 +58,60 @@
 // -----03-----
 
 module vga_letter2pixel(
-    letter, theme, ambiant, shine, clk, valid, 
+    letter, theme, ambiant, shine, clk, valid, steady,
     seg0, seg1, seg2, seg3, seg4, seg5, seg6, seg7, seg8, 
     seg9, sega, segb, segc, segd, sege, segf
     );
 input [4:0] letter;
 input [1:0]theme;
-input ambiant, shine, clk, valid;
+input ambiant, shine, clk, valid, steady;
 output reg[11:0] seg0, seg1, seg2, seg3, seg4, seg5, seg6, seg7, seg8;
 output reg[11:0] seg9, sega, segb, segc, segd, sege, segf;
 
 reg [11:0] backgrond, wcolor1;
+//reg dir;
 
 always@(posedge clk) begin
     case(theme)
         2'b00: begin
             backgrond <= 12'h000;
             if(ambiant == 1'b1 && valid == 1'b1) begin
-                wcolor1 <= wcolor1 + 12'h001;
+                wcolor1 <= (wcolor1[11:4] != 8'hff)? 12'hfff: wcolor1 - 12'h001;
             end
             else begin
                 if(shine == 1'b1 && valid == 1'b1) begin
                     wcolor1 <= (wcolor1 == 12'hfff)? 12'hf00 : 12'hfff;
                 end
                 else begin
-                    wcolor1 <= wcolor1;
+                    wcolor1 <= (steady == 1'b1)? 12'hfff : wcolor1;
                 end
             end
         end
         2'b01: begin
             backgrond <= 12'hfff;
             if(ambiant == 1'b1) begin
-                wcolor1 <= wcolor1 + 12'h001;
+                wcolor1 <= (wcolor1[11:4] != 8'h00)? 12'h000: wcolor1 + 12'h001;
             end
             else begin
                 if(shine == 1'b1) begin
                     wcolor1 <= (wcolor1 == 12'h000)? 12'hf00 : 12'h000;
                 end
                 else begin
-                    wcolor1 <= wcolor1;
+                    wcolor1 <= (steady == 1'b1)? 12'h000 : wcolor1;
                 end
             end
         end
         2'b10: begin
             backgrond <= 12'he7d;
             if(ambiant == 1'b1) begin
-                wcolor1 <= wcolor1 + 12'h001;
+                wcolor1 <= wcolor1 + 12'h001; 
             end
             else begin
                 if(shine == 1'b1) begin
                     wcolor1 <= (wcolor1 == 12'hfff)? 12'h8f0 : 12'hfff;
                 end
                 else begin
-                    wcolor1 <= wcolor1;
+                    wcolor1 <= (steady == 1'b1)? 12'hfff : wcolor1;
                 end
             end
         end
@@ -120,6 +121,7 @@ always@(posedge clk) begin
         end
     endcase
 end
+
 
 always@(*) begin
     case(letter)
@@ -326,7 +328,7 @@ always@(*) begin
             seg1 = wcolor1;
             seg2 = backgrond;
             seg3 = backgrond;
-            seg4 = backgrond;
+            seg4 = wcolor1;
             seg5 = wcolor1;
             seg6 = wcolor1;
             seg7 = wcolor1;

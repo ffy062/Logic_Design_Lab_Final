@@ -58,19 +58,22 @@
 `define win 4'd7
 `define lose 4'd8
 `define finish 4'd9
+`define go 4'd10
+
 
 module vga_pixel_gen(
-    h_cnt, v_cnt, valid, theme, ambiant, shine, clk, 
+    h_cnt, v_cnt, valid, t_chg, ambiant, shine, clk, rst,  
     state, score0, score1, cnt0, cnt1,
     vgaRed, vgaGreen, vgaBlue
     );
 
     input [9:0] h_cnt, v_cnt;
-    input valid, ambiant, shine ,clk;
-    input [1:0] theme;
+    input valid, ambiant, shine, clk, t_chg, rst;
     input [3:0] state;
     input [3:0] score0, score1, cnt0, cnt1;
     output reg [3:0] vgaRed, vgaGreen, vgaBlue;
+
+    wire [1:0] theme;
 
 
     wire [9:0] DRH0, DRH1, DRH2, DRH3, DV0, DV1, DV2, DV3, DV4, DV5;
@@ -98,17 +101,30 @@ module vga_pixel_gen(
     wire [9:0] B7H0, B7H1, B7H2, B7H3, B8H0, B8H1, B8H2, B9H0, B9H1, B9H2;
     wire [9:0] B0V0, B0V1, B0V2, B0V3, B0V4, B0V5;
 
+    wire [9:0] P0H0, P0H1, P0H2, P0H3, P1H0, P1H1,P1H1a, P1H2, P1H3, P2H0, P2H1, P2H2;
+    wire [9:0] P3H0, P3H1, P3H2, P3H3, P4H0, P4H1, P4H2, P4H3;
+    wire [9:0] P5H0, P5H1, P5H2, P5H3, P6H0, P6H1, P6H2, P6H3, P7H0, P7H1, P7H2, P7H3;
+    wire [9:0] P8H0, P8H1, P8H2, P8H3, P9H0, P9H1, P9H2, P9H3;
+    wire [9:0] PaH0, PaH1, PaH2,PaH1a, PaH3, PbH0, PbH1, PbH2, PbH3;
+    wire [9:0] P0V0, P0V1, P0V2, P0V3, P0V4, P0V5;  
+
+
+    wire [9:0] F0H0, F0H1, F0H2, F0H3, F1H0, F1H1, F1H2, F1H3, F2H0, F2H1, F2H2, F2H3;
+    wire [9:0] F3H0, F3H1, F3H2, F3H3, F0V0, F0V1, F0V2, F0V3, F0V4, F0V5;
+ 
     wire [11:0] seg_sr [8:0];
     wire [11:0] seg_sl [8:0];
     wire [11:0] seg_cnt0 [8:0];
     wire [11:0] seg_cnt1 [8:0];
     wire [11:0] seg_la [15:0];
     wire [11:0] seg_las [15:0];
+    wire [11:0] seg_laa [15:0];
     wire [11:0] seg_lb [15:0];
     wire [11:0] seg_lbs [15:0]; 
     wire [11:0] seg_lc [15:0];
     wire [11:0] seg_le [15:0];
     wire [11:0] seg_les [15:0];
+    wire [11:0] seg_lea [15:0];
     wire [11:0] seg_li [15:0];
     wire [11:0] seg_lk [15:0];
     wire [11:0] seg_lks [15:0];
@@ -116,11 +132,17 @@ module vga_pixel_gen(
     wire [11:0] seg_lls [15:0];
     wire [11:0] seg_lm [15:0];
     wire [11:0] seg_lo [15:0];
+    wire [11:0] seg_loa [15:0];
+    wire [11:0] seg_lp [15:0];
+    wire [11:0] seg_lpa [15:0];
     wire [11:0] seg_lr [15:0];
+    wire [11:0] seg_lra [15:0];
     wire [11:0] seg_ls [15:0];
     wire [11:0] seg_lss [15:0];
+    wire [11:0] seg_lsa [15:0];
     wire [11:0] seg_lt [15:0];
     wire [11:0] seg_lts [15:0];
+    wire [11:0] seg_lta [15:0];
     reg [11:0] backgrond;
     
     assign DRH0 = 340; // right score digit 
@@ -268,8 +290,8 @@ module vga_pixel_gen(
     assign B3H1 = 249; // height: 60 width: 30 bar width: 5
     assign B3H2 = 269;
     assign B3H3 = 274;
-    assign B3H2a = 260;
-    assign B3H2b = 265;
+    assign B3H2a = 262;
+    assign B3H2b = 267;
 
     assign B4H0 = 282; // basketball letter e
     assign B4H1 = 287; // height: 60 width: 30 bar width: 5
@@ -297,8 +319,120 @@ module vga_pixel_gen(
 
     assign B9H0 = 468; // basketball letter l1
     assign B9H1 = 473; // height: 60 width: 30 bar width: 5
-    assign B9H2 = 498;  
+    assign B9H2 = 498; 
 
+    assign P0H0 = 155; // press letter p
+    assign P0H1 = 158; // height: 40 width: 20 bar width: 3
+    assign P0H2 = 172;
+    assign P0H3 = 175;
+    assign P0V0 = 360;
+    assign P0V1 = 363;
+    assign P0V2 = 378;
+    assign P0V3 = 381;
+    assign P0V4 = 397;
+    assign P0V5 = 400;
+    
+    assign P1H0 = 180; // press letter r
+    assign P1H1 = 183; // height: 40 width: 20 bar width: 3
+    assign P1H1a = 194;
+    assign P1H2 = 197;
+    assign P1H3 = 200;
+    
+    assign P2H0 = 205; // press letter e
+    assign P2H1 = 208; // height: 40 width: 20 bar width: 3
+    assign P2H2 = 225;
+
+    assign P3H0 = 230; // press letter s0
+    assign P3H1 = 233; // height: 40 width: 20 bar width: 3
+    assign P3H2 = 247;
+    assign P3H3 = 250;
+
+    assign P4H0 = 255; // press letter s1
+    assign P4H1 = 258; // height: 40 width: 20 bar width: 3
+    assign P4H2 = 272;
+    assign P4H3 = 275;
+
+    assign P5H0 = 295; // to letter t
+    assign P5H1 = 303; // height: 40 width: 20 bar width: 3
+    assign P5H2 = 307;
+    assign P5H3 = 315;
+
+    assign P6H0 = 320; // to letter o
+    assign P6H1 = 323; // height: 40 width: 20 bar width: 3
+    assign P6H2 = 337;
+    assign P6H3 = 340;
+
+    assign P7H0 = 360; // start letter s
+    assign P7H1 = 363; // height: 40 width: 20 bar width: 3
+    assign P7H2 = 377;
+    assign P7H3 = 380;
+
+    assign P8H0 = 385; // start letter t
+    assign P8H1 = 393; // height: 40 width: 20 bar width: 3
+    assign P8H2 = 397;
+    assign P8H3 = 405;
+
+    assign P9H0 = 410; // start letter a
+    assign P9H1 = 413; // height: 40 width: 20 bar width: 3
+    assign P9H2 = 427;
+    assign P9H3 = 430;
+
+    assign PaH0 = 435; // start letter r
+    assign PaH1 = 438; // height: 40 width: 20 bar width: 3
+    assign PaH1a = 449;
+    assign PaH2 = 452;
+    assign PaH3 = 455;
+
+    assign PbH0 = 460; // start letter t
+    assign PbH1 = 468; // height: 40 width: 20 bar width: 3
+    assign PbH2 = 472;
+    assign PbH3 = 480;
+
+    assign F0H0 = 215; // pass letter p,  lose letter l
+    assign F0H1 = 221; // height: 80 width: 40 bar width: 6
+    assign F0H2 = 249;
+    assign F0H3 = 255;
+    assign F0V0 = 200;
+    assign F0V1 = 206;
+    assign F0V2 = 237;
+    assign F0V3 = 243;
+    assign F0V4 = 274;
+    assign F0V5 = 280;
+
+    assign F1H0 = 265; // pass letter a,  lose letter o
+    assign F1H1 = 271; // height: 80 width: 40 bar width: 6
+    assign F1H2 = 299;
+    assign F1H3 = 305;
+     
+    assign F2H0 = 315; // pass letter s0,  lose letter s
+    assign F2H1 = 321; // height: 80 width: 40 bar width: 6
+    assign F2H2 = 349;
+    assign F2H3 = 355;
+
+    assign F3H0 = 365; // pass letter s1,  lose letter e
+    assign F3H1 = 371; // height: 80 width: 40 bar width: 6
+    assign F3H2 = 399;
+    assign F3H3 = 405;
+
+    // theme control 
+    vga_theme_ctrl theme_ctrl(.clk(clk), .rst(rst), .chg(t_chg), .theme(theme)); 
+    
+    always@(*) begin
+    case(theme)
+        2'b00: begin
+            backgrond = 12'h000;
+        end
+        2'b01: begin
+            backgrond = 12'hfff;
+        end
+        2'b10: begin
+            backgrond = 12'he7d;
+        end
+        default: begin
+            backgrond = 12'h000;
+        end
+    endcase
+    end
 
     // number to pixel color
     vga_num2pixel n2p_sr(
@@ -326,151 +460,203 @@ module vga_pixel_gen(
         .seg7(seg_cnt1[7]), .seg8(seg_cnt1[8])
         );
 
-    // letter to pixel color
+    // letter to pixel color 
     vga_letter2pixel l2p_ls(
-        .letter(`S), .theme(theme),
-        .ambiant(1'b0), .shine(1'b0), .clk(clk), .valid(valid),
+        .letter(`S), .theme(theme), .steady(1'b1), 
+        .ambiant(1'b0), .shine(1'b0), .clk(clk | t_chg), .valid(valid),
         .seg0(seg_ls[0]), .seg1(seg_ls[1]), .seg2(seg_ls[2]), .seg3(seg_ls[3]),
         .seg4(seg_ls[4]), .seg5(seg_ls[5]), .seg6(seg_ls[6]), .seg7(seg_ls[7]),
         .seg8(seg_ls[8]), .seg9(seg_ls[9]), .sega(seg_ls[10]), .segb(seg_ls[11]),
         .segc(seg_ls[12]), .segd(seg_ls[13]), .sege(seg_ls[14]), .segf(seg_ls[15])
     );
     vga_letter2pixel l2p_lc(
-        .letter(`C), .theme(theme),
-        .ambiant(1'b0), .shine(1'b0), .clk(clk), .valid(valid),
+        .letter(`C), .theme(theme), .steady(1'b1), 
+        .ambiant(1'b0), .shine(1'b0), .clk(clk | t_chg), .valid(valid),
         .seg0(seg_lc[0]), .seg1(seg_lc[1]), .seg2(seg_lc[2]), .seg3(seg_lc[3]),
         .seg4(seg_lc[4]), .seg5(seg_lc[5]), .seg6(seg_lc[6]), .seg7(seg_lc[7]),
         .seg8(seg_lc[8]), .seg9(seg_lc[9]), .sega(seg_lc[10]), .segb(seg_lc[11]),
         .segc(seg_lc[12]), .segd(seg_lc[13]), .sege(seg_lc[14]), .segf(seg_lc[15])
     );
     vga_letter2pixel l2p_lo(
-        .letter(`O), .theme(theme),
-        .ambiant(1'b0), .shine(1'b0), .clk(clk), .valid(valid),
+        .letter(`O), .theme(theme), .steady(1'b1), 
+        .ambiant(1'b0), .shine(1'b0), .clk(clk | t_chg), .valid(valid),
         .seg0(seg_lo[0]), .seg1(seg_lo[1]), .seg2(seg_lo[2]), .seg3(seg_lo[3]),
         .seg4(seg_lo[4]), .seg5(seg_lo[5]), .seg6(seg_lo[6]), .seg7(seg_lo[7]),
         .seg8(seg_lo[8]), .seg9(seg_lo[9]), .sega(seg_lo[10]), .segb(seg_lo[11]),
         .segc(seg_lo[12]), .segd(seg_lo[13]), .sege(seg_lo[14]), .segf(seg_lo[15])
     );
     vga_letter2pixel l2p_lr(
-        .letter(`R), .theme(theme),
-        .ambiant(1'b0), .shine(1'b0), .clk(clk), .valid(valid),
+        .letter(`R), .theme(theme), .steady(1'b1), 
+        .ambiant(1'b0), .shine(1'b0), .clk(clk | t_chg), .valid(valid),
         .seg0(seg_lr[0]), .seg1(seg_lr[1]), .seg2(seg_lr[2]), .seg3(seg_lr[3]),
         .seg4(seg_lr[4]), .seg5(seg_lr[5]), .seg6(seg_lr[6]), .seg7(seg_lr[7]),
         .seg8(seg_lr[8]), .seg9(seg_lr[9]), .sega(seg_lr[10]), .segb(seg_lr[11]),
         .segc(seg_lr[12]), .segd(seg_lr[13]), .sege(seg_lr[14]), .segf(seg_lr[15])
     );
     vga_letter2pixel l2p_le(
-        .letter(`E), .theme(theme),
-        .ambiant(1'b0), .shine(1'b0), .clk(clk), .valid(valid),
+        .letter(`E), .theme(theme), .steady(1'b1), 
+        .ambiant(1'b0), .shine(1'b0), .clk(clk | t_chg), .valid(valid),
         .seg0(seg_le[0]), .seg1(seg_le[1]), .seg2(seg_le[2]), .seg3(seg_le[3]),
         .seg4(seg_le[4]), .seg5(seg_le[5]), .seg6(seg_le[6]), .seg7(seg_le[7]),
         .seg8(seg_le[8]), .seg9(seg_le[9]), .sega(seg_le[10]), .segb(seg_le[11]),
         .segc(seg_le[12]), .segd(seg_le[13]), .sege(seg_le[14]), .segf(seg_le[15])
     );
     vga_letter2pixel l2p_lt(
-        .letter(`T), .theme(theme),
-        .ambiant(1'b0), .shine(1'b0), .clk(clk), .valid(valid),
+        .letter(`T), .theme(theme), .steady(1'b1), 
+        .ambiant(1'b0), .shine(1'b0), .clk(clk | t_chg), .valid(valid),
         .seg0(seg_lt[0]), .seg1(seg_lt[1]), .seg2(seg_lt[2]), .seg3(seg_lt[3]),
         .seg4(seg_lt[4]), .seg5(seg_lt[5]), .seg6(seg_lt[6]), .seg7(seg_lt[7]),
         .seg8(seg_lt[8]), .seg9(seg_lt[9]), .sega(seg_lt[10]), .segb(seg_lt[11]),
         .segc(seg_lt[12]), .segd(seg_lt[13]), .sege(seg_lt[14]), .segf(seg_lt[15])
     );
     vga_letter2pixel l2p_li(
-        .letter(`I), .theme(theme), 
-        .ambiant(1'b0), .shine(1'b0), .clk(clk), .valid(valid),
+        .letter(`I), .theme(theme), .steady(1'b1), 
+        .ambiant(1'b0), .shine(1'b0), .clk(clk | t_chg), .valid(valid),
         .seg0(seg_li[0]), .seg1(seg_li[1]), .seg2(seg_li[2]), .seg3(seg_li[3]),
         .seg4(seg_li[4]), .seg5(seg_li[5]), .seg6(seg_li[6]), .seg7(seg_li[7]),
         .seg8(seg_li[8]), .seg9(seg_li[9]), .sega(seg_li[10]), .segb(seg_li[11]),
         .segc(seg_li[12]), .segd(seg_li[13]), .sege(seg_li[14]), .segf(seg_li[15])
     );
     vga_letter2pixel l2p_lm(
-        .letter(`M), .theme(theme),
-        .ambiant(1'b0), .shine(1'b0), .clk(clk),  .valid(valid),
+        .letter(`M), .theme(theme), .steady(1'b1), 
+        .ambiant(1'b0), .shine(1'b0), .clk(clk | t_chg),  .valid(valid),
         .seg0(seg_lm[0]), .seg1(seg_lm[1]), .seg2(seg_lm[2]), .seg3(seg_lm[3]),
         .seg4(seg_lm[4]), .seg5(seg_lm[5]), .seg6(seg_lm[6]), .seg7(seg_lm[7]),
         .seg8(seg_lm[8]), .seg9(seg_lm[9]), .sega(seg_lm[10]), .segb(seg_lm[11]),
         .segc(seg_lm[12]), .segd(seg_lm[13]), .sege(seg_lm[14]), .segf(seg_lm[15])
     );
+    vga_letter2pixel l2p_lp(
+        .letter(`P), .theme(theme), .steady(1'b1), 
+        .ambiant(1'b0), .shine(1'b0), .clk(clk | t_chg),  .valid(valid),
+        .seg0(seg_lp[0]), .seg1(seg_lp[1]), .seg2(seg_lp[2]), .seg3(seg_lp[3]),
+        .seg4(seg_lp[4]), .seg5(seg_lp[5]), .seg6(seg_lp[6]), .seg7(seg_lp[7]),
+        .seg8(seg_lp[8]), .seg9(seg_lp[9]), .sega(seg_lp[10]), .segb(seg_lp[11]),
+        .segc(seg_lp[12]), .segd(seg_lp[13]), .sege(seg_lp[14]), .segf(seg_lp[15])
+    );
+
+    // letter to pixel shine
     vga_letter2pixel l2p_lbs(
-        .letter(`B), .theme(theme), 
-        .ambiant(1'b0), .shine(shine), .clk(clk), .valid(valid),
+        .letter(`B), .theme(theme), .steady(1'b0), 
+        .ambiant(1'b0), .shine(shine), .clk(clk | t_chg), .valid(valid),
         .seg0(seg_lbs[0]), .seg1(seg_lbs[1]), .seg2(seg_lbs[2]), .seg3(seg_lbs[3]),
         .seg4(seg_lbs[4]), .seg5(seg_lbs[5]), .seg6(seg_lbs[6]), .seg7(seg_lbs[7]),
         .seg8(seg_lbs[8]), .seg9(seg_lbs[9]), .sega(seg_lbs[10]), .segb(seg_lbs[11]),
         .segc(seg_lbs[12]), .segd(seg_lbs[13]), .sege(seg_lbs[14]), .segf(seg_lbs[15])
     );
     vga_letter2pixel l2p_las(
-        .letter(`A), .theme(theme), 
-        .ambiant(1'b0), .shine(shine), .clk(clk), .valid(valid),
+        .letter(`A), .theme(theme), .steady(1'b0),
+        .ambiant(1'b0), .shine(shine), .clk(clk | t_chg), .valid(valid),
         .seg0(seg_las[0]), .seg1(seg_las[1]), .seg2(seg_las[2]), .seg3(seg_las[3]),
         .seg4(seg_las[4]), .seg5(seg_las[5]), .seg6(seg_las[6]), .seg7(seg_las[7]),
         .seg8(seg_las[8]), .seg9(seg_las[9]), .sega(seg_las[10]), .segb(seg_las[11]),
         .segc(seg_las[12]), .segd(seg_las[13]), .sege(seg_la[14]), .segf(seg_las[15])
     );
     vga_letter2pixel l2p_lss(
-        .letter(`S), .theme(theme), 
-        .ambiant(1'b0), .shine(shine), .clk(clk), .valid(valid),
+        .letter(`S), .theme(theme), .steady(1'b0), 
+        .ambiant(1'b0), .shine(shine), .clk(clk | t_chg), .valid(valid),
         .seg0(seg_lss[0]), .seg1(seg_lss[1]), .seg2(seg_lss[2]), .seg3(seg_lss[3]),
         .seg4(seg_lss[4]), .seg5(seg_lss[5]), .seg6(seg_lss[6]), .seg7(seg_lss[7]),
         .seg8(seg_lss[8]), .seg9(seg_lss[9]), .sega(seg_lss[10]), .segb(seg_lss[11]),
         .segc(seg_lss[12]), .segd(seg_lss[13]), .sege(seg_lss[14]), .segf(seg_lss[15])
     );
      vga_letter2pixel l2p_lks(
-        .letter(`K), .theme(theme), 
-        .ambiant(1'b0), .shine(shine), .clk(clk), .valid(valid),
+        .letter(`K), .theme(theme), .steady(1'b0),
+        .ambiant(1'b0), .shine(shine), .clk(clk | t_chg), .valid(valid),
         .seg0(seg_lks[0]), .seg1(seg_lks[1]), .seg2(seg_lks[2]), .seg3(seg_lks[3]),
         .seg4(seg_lks[4]), .seg5(seg_lks[5]), .seg6(seg_lks[6]), .seg7(seg_lks[7]),
         .seg8(seg_lks[8]), .seg9(seg_lks[9]), .sega(seg_lks[10]), .segb(seg_lks[11]),
         .segc(seg_lks[12]), .segd(seg_lks[13]), .sege(seg_lks[14]), .segf(seg_lks[15])
     );
     vga_letter2pixel l2p_les(
-        .letter(`E), .theme(theme), 
-        .ambiant(1'b0), .shine(shine), .clk(clk), .valid(valid),
+        .letter(`E), .theme(theme), .steady(1'b0),
+        .ambiant(1'b0), .shine(shine), .clk(clk | t_chg), .valid(valid),
         .seg0(seg_les[0]), .seg1(seg_les[1]), .seg2(seg_les[2]), .seg3(seg_les[3]),
         .seg4(seg_les[4]), .seg5(seg_les[5]), .seg6(seg_les[6]), .seg7(seg_les[7]),
         .seg8(seg_les[8]), .seg9(seg_les[9]), .sega(seg_les[10]), .segb(seg_les[11]),
         .segc(seg_les[12]), .segd(seg_les[13]), .sege(seg_les[14]), .segf(seg_les[15])
     );
     vga_letter2pixel l2p_lts(
-        .letter(`T), .theme(theme), 
-        .ambiant(1'b0), .shine(shine), .clk(clk), .valid(valid),
+        .letter(`T), .theme(theme), .steady(1'b0),
+        .ambiant(1'b0), .shine(shine), .clk(clk | t_chg), .valid(valid),
         .seg0(seg_lts[0]), .seg1(seg_lts[1]), .seg2(seg_lts[2]), .seg3(seg_lts[3]),
         .seg4(seg_lts[4]), .seg5(seg_lts[5]), .seg6(seg_lts[6]), .seg7(seg_lts[7]),
         .seg8(seg_lts[8]), .seg9(seg_lts[9]), .sega(seg_lts[10]), .segb(seg_lts[11]),
         .segc(seg_lts[12]), .segd(seg_lts[13]), .sege(seg_lts[14]), .segf(seg_lts[15])
     );
-     vga_letter2pixel l2p_lls(
-        .letter(`L), .theme(theme), 
-        .ambiant(1'b0), .shine(shine), .clk(clk), .valid(valid),
+    vga_letter2pixel l2p_lls(
+        .letter(`L), .theme(theme), .steady(1'b0),
+        .ambiant(1'b0), .shine(shine), .clk(clk | t_chg), .valid(valid),
         .seg0(seg_lls[0]), .seg1(seg_lls[1]), .seg2(seg_lls[2]), .seg3(seg_lls[3]),
         .seg4(seg_lls[4]), .seg5(seg_lls[5]), .seg6(seg_lls[6]), .seg7(seg_lls[7]),
         .seg8(seg_lls[8]), .seg9(seg_lls[9]), .sega(seg_lls[10]), .segb(seg_lls[11]),
         .segc(seg_lls[12]), .segd(seg_lls[13]), .sege(seg_lls[14]), .segf(seg_lls[15])
     );
 
+    // letter to pixel ambiant
+    vga_letter2pixel l2p_lpa(
+        .letter(`P), .theme(theme), .steady(1'b0),
+        .ambiant(ambiant), .shine(1'b0), .clk(clk | t_chg), .valid(valid),
+        .seg0(seg_lpa[0]), .seg1(seg_lpa[1]), .seg2(seg_lpa[2]), .seg3(seg_lpa[3]),
+        .seg4(seg_lpa[4]), .seg5(seg_lpa[5]), .seg6(seg_lpa[6]), .seg7(seg_lpa[7]),
+        .seg8(seg_lpa[8]), .seg9(seg_lpa[9]), .sega(seg_lpa[10]), .segb(seg_lpa[11]),
+        .segc(seg_lpa[12]), .segd(seg_lpa[13]), .sege(seg_lpa[14]), .segf(seg_lpa[15])
+    );
+    vga_letter2pixel l2p_lra(
+        .letter(`R), .theme(theme), .steady(1'b0),
+        .ambiant(ambiant), .shine(1'b0), .clk(clk | t_chg), .valid(valid),
+        .seg0(seg_lra[0]), .seg1(seg_lra[1]), .seg2(seg_lra[2]), .seg3(seg_lra[3]),
+        .seg4(seg_lra[4]), .seg5(seg_lra[5]), .seg6(seg_lra[6]), .seg7(seg_lra[7]),
+        .seg8(seg_lra[8]), .seg9(seg_lra[9]), .sega(seg_lra[10]), .segb(seg_lra[11]),
+        .segc(seg_lra[12]), .segd(seg_lra[13]), .sege(seg_lra[14]), .segf(seg_lra[15])
+    );
+    vga_letter2pixel l2p_lea(
+        .letter(`E), .theme(theme), .steady(1'b0),
+        .ambiant(ambiant), .shine(1'b0), .clk(clk | t_chg), .valid(valid),
+        .seg0(seg_lea[0]), .seg1(seg_lea[1]), .seg2(seg_lea[2]), .seg3(seg_lea[3]),
+        .seg4(seg_lea[4]), .seg5(seg_lea[5]), .seg6(seg_lea[6]), .seg7(seg_lea[7]),
+        .seg8(seg_lea[8]), .seg9(seg_lea[9]), .sega(seg_lea[10]), .segb(seg_lea[11]),
+        .segc(seg_lea[12]), .segd(seg_lea[13]), .sege(seg_lea[14]), .segf(seg_lea[15])
+    );
+    vga_letter2pixel l2p_lsa(
+        .letter(`S), .theme(theme), .steady(1'b0),
+        .ambiant(ambiant), .shine(1'b0), .clk(clk | t_chg), .valid(valid),
+        .seg0(seg_lsa[0]), .seg1(seg_lsa[1]), .seg2(seg_lsa[2]), .seg3(seg_lsa[3]),
+        .seg4(seg_lsa[4]), .seg5(seg_lsa[5]), .seg6(seg_lsa[6]), .seg7(seg_lsa[7]),
+        .seg8(seg_lsa[8]), .seg9(seg_lsa[9]), .sega(seg_lsa[10]), .segb(seg_lsa[11]),
+        .segc(seg_lsa[12]), .segd(seg_lsa[13]), .sege(seg_lsa[14]), .segf(seg_lsa[15])
+    );
+    vga_letter2pixel l2p_lta(
+        .letter(`T), .theme(theme), .steady(1'b0),
+        .ambiant(ambiant), .shine(1'b0), .clk(clk | t_chg), .valid(valid),
+        .seg0(seg_lta[0]), .seg1(seg_lta[1]), .seg2(seg_lta[2]), .seg3(seg_lta[3]),
+        .seg4(seg_lta[4]), .seg5(seg_lta[5]), .seg6(seg_lta[6]), .seg7(seg_lta[7]),
+        .seg8(seg_lta[8]), .seg9(seg_lta[9]), .sega(seg_lta[10]), .segb(seg_lta[11]),
+        .segc(seg_lta[12]), .segd(seg_lta[13]), .sege(seg_lta[14]), .segf(seg_lta[15])
+    );
+    vga_letter2pixel l2p_loa(
+        .letter(`O), .theme(theme), .steady(1'b0),
+        .ambiant(ambiant), .shine(1'b0), .clk(clk | t_chg), .valid(valid),
+        .seg0(seg_loa[0]), .seg1(seg_loa[1]), .seg2(seg_loa[2]), .seg3(seg_loa[3]),
+        .seg4(seg_loa[4]), .seg5(seg_loa[5]), .seg6(seg_loa[6]), .seg7(seg_loa[7]),
+        .seg8(seg_loa[8]), .seg9(seg_loa[9]), .sega(seg_loa[10]), .segb(seg_loa[11]),
+        .segc(seg_loa[12]), .segd(seg_loa[13]), .sege(seg_loa[14]), .segf(seg_loa[15])
+    );
+    vga_letter2pixel l2p_laa(
+        .letter(`A), .theme(theme), .steady(1'b0),
+        .ambiant(ambiant), .shine(1'b0), .clk(clk | t_chg), .valid(valid),
+        .seg0(seg_laa[0]), .seg1(seg_laa[1]), .seg2(seg_laa[2]), .seg3(seg_laa[3]),
+        .seg4(seg_laa[4]), .seg5(seg_laa[5]), .seg6(seg_laa[6]), .seg7(seg_laa[7]),
+        .seg8(seg_laa[8]), .seg9(seg_laa[9]), .sega(seg_laa[10]), .segb(seg_laa[11]),
+        .segc(seg_laa[12]), .segd(seg_laa[13]), .sege(seg_laa[14]), .segf(seg_laa[15])
+    );
 
-    always@(*) begin
-    case(theme)
-        2'b00: begin
-            backgrond = 12'h000;
-        end
-        2'b01: begin
-            backgrond = 12'hfff;
-        end
-        2'b10: begin
-            backgrond = 12'he7d;
-        end
-        default: begin
-            backgrond = 12'h000;
-        end
-    endcase
-    end
+
 
 
     always @(*) begin
         if(!valid)
             {vgaRed, vgaGreen, vgaBlue} = 12'h0;
-        else begin
+          else begin
             case(state)
             `rst: begin
                 if(v_cnt < B0V0) begin
@@ -620,7 +806,7 @@ module vga_pixel_gen(
                     if(h_cnt >= B0H0 && h_cnt < B0H2a) begin
                         {vgaRed, vgaGreen, vgaBlue} = seg_lbs[3];
                     end
-                    else if((h_cnt >= B1H0 && h_cnt < B3H1)||(h_cnt >= B1H2 && h_cnt < B1H3)) begin
+                    else if((h_cnt >= B1H0 && h_cnt < B1H1)||(h_cnt >= B1H2 && h_cnt < B1H3)) begin
                         {vgaRed, vgaGreen, vgaBlue} = seg_las[2];
                     end
                     else if(h_cnt >= B2H0 && h_cnt < B2H3) begin
@@ -651,6 +837,214 @@ module vga_pixel_gen(
                         {vgaRed, vgaGreen, vgaBlue} = backgrond;
                     end
                 end
+                else if(v_cnt < P0V0) begin
+                    {vgaRed, vgaGreen, vgaBlue} = backgrond;
+                end
+                else if(v_cnt < P0V1) begin
+                    if(h_cnt >= P0H0 && h_cnt < P0H3) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lpa[0];
+                    end
+                    else if(h_cnt >= P1H0 && h_cnt < P1H3) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lra[0];
+                    end
+                    else if(h_cnt >= P2H0 && h_cnt < P2H2) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lea[0];
+                    end
+                    else if(h_cnt >= P3H0 && h_cnt < P3H3) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lsa[0];
+                    end
+                    else if(h_cnt >= P4H0 && h_cnt < P4H3) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lsa[0];
+                    end
+                    else if(h_cnt >= P5H0 && h_cnt < P5H3) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lta[0];
+                    end
+                    else if(h_cnt >= P6H0 && h_cnt < P6H3) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_loa[0];
+                    end
+                    else if(h_cnt >= P7H0 && h_cnt < P7H3) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lsa[0];
+                    end
+                    else if(h_cnt >= P8H0 && h_cnt < P8H3) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lta[0];
+                    end
+                    else if(h_cnt >= P9H0 && h_cnt < P9H3) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_laa[0];
+                    end
+                    else if(h_cnt >= PaH0 && h_cnt < PaH3) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lra[0];
+                    end
+                    else if(h_cnt >= PbH0 && h_cnt < PbH3) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lta[0];
+                    end
+                    else begin
+                        {vgaRed, vgaGreen, vgaBlue} = backgrond;
+                    end
+                end
+                else if(v_cnt < P0V2) begin
+                    if((h_cnt >= P0H0 && h_cnt < P0H1)||(h_cnt >= P0H2 && h_cnt < P0H3)) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lpa[5];
+                    end
+                    else if((h_cnt >= P1H0 && h_cnt < P1H1)||(h_cnt >= P1H2 && h_cnt < P1H3)) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lra[5];
+                    end
+                    else if(h_cnt >= P2H0 && h_cnt < P2H1) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lea[5];
+                    end
+                    else if(h_cnt >= P3H0 && h_cnt < P3H1) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lsa[5];
+                    end
+                    else if(h_cnt >= P4H0 && h_cnt < P4H1) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lsa[5];
+                    end
+                    else if(h_cnt >= P5H1 && h_cnt < P5H2) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lta[0];
+                    end
+                    else if((h_cnt >= P6H0 && h_cnt < P6H1)||(h_cnt >= P6H2 && h_cnt < P6H3)) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_loa[0];
+                    end
+                    else if(h_cnt >= P7H0 && h_cnt < P7H1) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lsa[0];
+                    end
+                    else if(h_cnt >= P8H1 && h_cnt < P8H2) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lta[0];
+                    end
+                    else if((h_cnt >= P9H0 && h_cnt < P9H1)||(h_cnt >= P9H2 && h_cnt < P9H3)) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_laa[0];
+                    end
+                    else if((h_cnt >= PaH0 && h_cnt < PaH1)||(h_cnt >= PaH2 && h_cnt < PaH3)) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lra[0];
+                    end
+                    else if(h_cnt >= PbH1 && h_cnt < PbH2) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lta[0];
+                    end
+                    else begin
+                        {vgaRed, vgaGreen, vgaBlue} = backgrond;
+                    end
+                end
+                else if(v_cnt < P0V3) begin
+                    if(h_cnt >= P0H0 && h_cnt < P0H3) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lpa[15];
+                    end
+                    else if(h_cnt >= P1H0 && h_cnt < P1H3) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lra[15];
+                    end
+                    else if(h_cnt >= P2H0 && h_cnt < P2H2) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lea[15];
+                    end
+                    else if(h_cnt >= P3H0 && h_cnt < P3H3) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lsa[15];
+                    end
+                    else if(h_cnt >= P4H0 && h_cnt < P4H3) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lsa[15];
+                    end
+                    else if(h_cnt >= P5H1 && h_cnt < P5H2) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lta[0];
+                    end
+                    else if((h_cnt >= P6H0 && h_cnt < P6H1)||(h_cnt >= P6H2 && h_cnt < P6H3)) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_loa[0];
+                    end
+                    else if(h_cnt >= P7H0 && h_cnt < P7H3) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lsa[0];
+                    end
+                    else if(h_cnt >= P8H1 && h_cnt < P8H2) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lta[0];
+                    end
+                    else if(h_cnt >= P9H0 && h_cnt < P9H3) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_laa[0];
+                    end
+                    else if(h_cnt >= PaH0 && h_cnt < PaH3) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lra[0];
+                    end
+                    else if(h_cnt >= PbH1 && h_cnt < PbH2) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lta[0];
+                    end
+                    else begin
+                        {vgaRed, vgaGreen, vgaBlue} = backgrond;
+                    end
+                end
+                else if(v_cnt < P0V4) begin
+                    if(h_cnt >= P0H0 && h_cnt < P0H1) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lpa[4];
+                    end
+                    else if((h_cnt >= P1H0 && h_cnt < P1H1)||(h_cnt >= P1H1a && h_cnt < P1H2)) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lra[4];
+                    end
+                    else if(h_cnt >= P2H0 && h_cnt < P2H1) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lea[4];
+                    end
+                    else if(h_cnt >= P3H2 && h_cnt < P3H3) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lsa[2];
+                    end
+                    else if(h_cnt >= P4H2 && h_cnt < P4H3) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lsa[2];
+                    end
+                    else if(h_cnt >= P5H1 && h_cnt < P5H2) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lta[0];
+                    end
+                    else if((h_cnt >= P6H0 && h_cnt < P6H1)||(h_cnt >= P6H2 && h_cnt < P6H3)) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_loa[0];
+                    end
+                    else if(h_cnt >= P7H2 && h_cnt < P7H3) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lsa[0];
+                    end
+                    else if(h_cnt >= P8H1 && h_cnt < P8H2) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lta[0];
+                    end
+                    else if((h_cnt >= P9H0 && h_cnt < P9H1)||(h_cnt >= P9H2 && h_cnt < P9H3)) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_laa[0];
+                    end
+                    else if((h_cnt >= PaH0 && h_cnt < PaH1)||(h_cnt >= PaH1a && h_cnt < PaH2)) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lra[0];
+                    end
+                    else if(h_cnt >= PbH1 && h_cnt < PbH2) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lta[0];
+                    end
+                    else begin
+                        {vgaRed, vgaGreen, vgaBlue} = backgrond;
+                    end
+                end
+                else if(v_cnt < P0V5) begin
+                    if(h_cnt >= P0H0 && h_cnt < P0H1) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lpa[4];
+                    end
+                    else if((h_cnt >= P1H0 && h_cnt < P1H1)||(h_cnt >= P1H1a && h_cnt < P1H2)) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lra[4];
+                    end
+                    else if(h_cnt >= P2H0 && h_cnt < P2H2) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lea[3];
+                    end
+                    else if(h_cnt >= P3H0 && h_cnt < P3H3) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lsa[3];
+                    end
+                    else if(h_cnt >= P4H0 && h_cnt < P4H3) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lsa[3];
+                    end
+                    else if(h_cnt >= P5H1 && h_cnt < P5H2) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lta[0];
+                    end
+                    else if(h_cnt >= P6H0 && h_cnt < P6H3) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_loa[0];
+                    end
+                    else if(h_cnt >= P7H0 && h_cnt < P7H3) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lsa[0];
+                    end
+                    else if(h_cnt >= P8H1 && h_cnt < P8H2) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lta[0];
+                    end
+                    else if((h_cnt >= P9H0 && h_cnt < P9H1)||(h_cnt >= P9H2 && h_cnt < P9H3)) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_laa[0];
+                    end
+                    else if((h_cnt >= PaH0 && h_cnt < PaH1)||(h_cnt >= PaH1a && h_cnt < PaH2)) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lra[0];
+                    end
+                    else if(h_cnt >= PbH1 && h_cnt < PbH2) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lta[0];
+                    end
+                    else begin
+                        {vgaRed, vgaGreen, vgaBlue} = backgrond;
+                    end
+                end
                 else begin
                     {vgaRed, vgaGreen, vgaBlue} = backgrond;
                 end
@@ -660,52 +1054,56 @@ module vga_pixel_gen(
                 {vgaRed, vgaGreen, vgaBlue} = backgrond;
             end
             `b_play: begin
-                if(h_cnt < DCH0) begin
+                if(v_cnt < DCV0) begin
                     {vgaRed, vgaGreen, vgaBlue} = backgrond;
                 end
-                else if(h_cnt < DCH1) begin
-                    if(v_cnt < DCV0) begin
-                        {vgaRed, vgaGreen, vgaBlue} = backgrond;
-                    end
-                    else if(v_cnt < DCV2) begin
-                        {vgaRed, vgaGreen, vgaBlue} = seg_cnt0[5];
-                    end
-                    else if(v_cnt < DCV3) begin
-                        {vgaRed, vgaGreen, vgaBlue} = seg_cnt0[8];
-                    end
-                    else if(v_cnt < DCV5) begin
-                        {vgaRed, vgaGreen, vgaBlue} = seg_cnt0[4];
-                    end
-                    else begin
-                        {vgaRed, vgaGreen, vgaBlue} = backgrond;
-                    end
-                end
-                else if(h_cnt < DCH2) begin
-                    if(v_cnt >= DCV0 && v_cnt < DCV1) begin
+                else if(v_cnt < DCV1) begin
+                    if(h_cnt >= DCH0 && h_cnt < DCH3) begin
                         {vgaRed, vgaGreen, vgaBlue} = seg_cnt0[0];
                     end
-                    else if(v_cnt >= DCV2 && v_cnt < DCV3) begin
-                        {vgaRed, vgaGreen, vgaBlue} = seg_cnt0[6];
+                    else begin
+                        {vgaRed, vgaGreen, vgaBlue} = backgrond;
                     end
-                    else if(v_cnt >= DCV4 && v_cnt < DCV5) begin
-                        {vgaRed, vgaGreen, vgaBlue} = seg_cnt0[3];
+                end
+                else if(v_cnt < DCV2) begin
+                    if(h_cnt >= DCH0 && h_cnt < DCH1) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_cnt0[5];
+                    end
+                    else if(h_cnt >= DCH2 && h_cnt < DCH3) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_cnt0[1];
                     end
                     else begin
                         {vgaRed, vgaGreen, vgaBlue} = backgrond;
                     end
                 end
-                else if(h_cnt < DCH3) begin
-                    if(v_cnt < DCV0) begin
+                else if(v_cnt < DCV3) begin
+                   if(h_cnt >= DCH0 && h_cnt < DCH1) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_cnt0[7];
+                   end
+                   else if(h_cnt >= DCH1 && h_cnt < DCH2) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_cnt0[6];
+                    end
+                    else if(h_cnt >= DCH2 && h_cnt < DCH3) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_cnt0[8];
+                   end
+                    else begin
                         {vgaRed, vgaGreen, vgaBlue} = backgrond;
                     end
-                    else if(v_cnt < DCV2) begin
-                         {vgaRed, vgaGreen, vgaBlue} = seg_cnt0[1];
+                end
+                else if(v_cnt < DCV4) begin
+                    if(h_cnt >= DCH0 && h_cnt < DCH1) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_cnt0[4];
                     end
-                    else if(v_cnt < DCV3) begin
-                         {vgaRed, vgaGreen, vgaBlue} = seg_cnt0[7];
+                    else if(h_cnt >= DCH2 && h_cnt < DCH3) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_cnt0[2];
                     end
-                    else if(v_cnt < DCV5) begin
-                         {vgaRed, vgaGreen, vgaBlue} =seg_cnt0[2];
+                    else begin
+                        {vgaRed, vgaGreen, vgaBlue} = backgrond;
+                    end
+                end
+                else if(v_cnt < DCV5) begin
+                    if(h_cnt >= DCH0 && h_cnt < DCH3) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_cnt0[3];
                     end
                     else begin
                         {vgaRed, vgaGreen, vgaBlue} = backgrond;
@@ -715,7 +1113,7 @@ module vga_pixel_gen(
                     {vgaRed, vgaGreen, vgaBlue} = backgrond;
                 end
             end
-            `stage1, `pmode: begin
+            `stage1, `stage2, `stage3, `pmode: begin
                 
                 // word score start here
 
@@ -882,7 +1280,7 @@ module vga_pixel_gen(
                         {vgaRed, vgaGreen, vgaBlue} = seg_sl[5];
                     end
                     else if(v_cnt >= DV2 && v_cnt < DV3) begin
-                        {vgaRed, vgaGreen, vgaBlue} = seg_sl[8];
+                        {vgaRed, vgaGreen, vgaBlue} = seg_sl[7];
                     end
                     else if(v_cnt >= DV3 && v_cnt < DV5) begin
                         {vgaRed, vgaGreen, vgaBlue} = seg_sl[4];
@@ -910,7 +1308,7 @@ module vga_pixel_gen(
                          {vgaRed, vgaGreen, vgaBlue} = seg_sl[1];
                     end
                     else if(v_cnt >= DV2 && v_cnt < DV3) begin
-                         {vgaRed, vgaGreen, vgaBlue} = seg_sl[7];
+                         {vgaRed, vgaGreen, vgaBlue} = seg_sl[8];
                     end
                     else if(v_cnt >= DV3 && v_cnt < DV5) begin
                          {vgaRed, vgaGreen, vgaBlue} =seg_sl[2];
@@ -927,7 +1325,7 @@ module vga_pixel_gen(
                         {vgaRed, vgaGreen, vgaBlue} = seg_sr[5];
                     end
                     else if(v_cnt >= DV2 && v_cnt < DV3) begin
-                        {vgaRed, vgaGreen, vgaBlue} = seg_sr[8];
+                        {vgaRed, vgaGreen, vgaBlue} = seg_sr[7];
                     end
                     else if(v_cnt >= DV3 && v_cnt < DV5) begin
                         {vgaRed, vgaGreen, vgaBlue} = seg_sr[4];
@@ -955,7 +1353,7 @@ module vga_pixel_gen(
                         {vgaRed, vgaGreen, vgaBlue} = seg_sr[1];
                     end
                     else if(v_cnt >= DV2 && v_cnt < DV3) begin
-                        {vgaRed, vgaGreen, vgaBlue} = seg_sr[7];
+                        {vgaRed, vgaGreen, vgaBlue} = seg_sr[8];
                     end
                     else if(v_cnt >= DV3 && v_cnt < DV5) begin
                         {vgaRed, vgaGreen, vgaBlue} =seg_sr[2];
@@ -1180,7 +1578,7 @@ module vga_pixel_gen(
                         {vgaRed, vgaGreen, vgaBlue} = seg_cnt1[5];
                     end
                     else if(v_cnt >= DTV2 && v_cnt < DTV3) begin
-                        {vgaRed, vgaGreen, vgaBlue} = seg_cnt1[8];
+                        {vgaRed, vgaGreen, vgaBlue} = seg_cnt1[7];
                     end
                     else if(v_cnt >= DTV3 && v_cnt < DTV5) begin
                         {vgaRed, vgaGreen, vgaBlue} = seg_cnt1[4];
@@ -1208,7 +1606,7 @@ module vga_pixel_gen(
                          {vgaRed, vgaGreen, vgaBlue} = seg_cnt1[1];
                     end
                     else if(v_cnt >= DTV2 && v_cnt < DTV3) begin
-                         {vgaRed, vgaGreen, vgaBlue} = seg_cnt1[7];
+                         {vgaRed, vgaGreen, vgaBlue} = seg_cnt1[8];
                     end
                     else if(v_cnt >= DTV3 && v_cnt < DTV5) begin
                          {vgaRed, vgaGreen, vgaBlue} =seg_cnt1[2];
@@ -1225,7 +1623,7 @@ module vga_pixel_gen(
                         {vgaRed, vgaGreen, vgaBlue} = seg_cnt0[5];
                     end
                     else if(v_cnt >= DTV2 && v_cnt < DTV3) begin
-                        {vgaRed, vgaGreen, vgaBlue} = seg_cnt0[8];
+                        {vgaRed, vgaGreen, vgaBlue} = seg_cnt0[7];
                     end
                     else if(v_cnt >= DTV3 && v_cnt < DTV5) begin
                         {vgaRed, vgaGreen, vgaBlue} = seg_cnt0[4];
@@ -1253,7 +1651,7 @@ module vga_pixel_gen(
                         {vgaRed, vgaGreen, vgaBlue} = seg_cnt0[1];
                     end
                     else if(v_cnt >= DTV2 && v_cnt < DTV3) begin
-                        {vgaRed, vgaGreen, vgaBlue} = seg_cnt0[7];
+                        {vgaRed, vgaGreen, vgaBlue} = seg_cnt0[8];
                     end
                     else if(v_cnt >= DTV3 && v_cnt < DTV5) begin
                         {vgaRed, vgaGreen, vgaBlue} =seg_cnt0[2];
@@ -1269,9 +1667,14 @@ module vga_pixel_gen(
                     {vgaRed, vgaGreen, vgaBlue} = backgrond;
                 end
             end
+            `win: begin
+                {vgaRed, vgaGreen, vgaBlue} = 12'hfd0;
+            end
+            `lose: begin
+                {vgaRed, vgaGreen, vgaBlue} = 12'h000;
+            end
             default: begin
                 {vgaRed, vgaGreen, vgaBlue} = backgrond;
-                
             end 
             endcase
         end 
