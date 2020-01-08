@@ -23,11 +23,12 @@
 module VGA_top(
     clk, rst, theme_c, 
     state, score0, score1, cnt0, cnt1,
+    scores0, scores1, 
     vgaRed, vgaGreen, vgaBlue, hsync, vsync
     );
 input clk, rst, theme_c;
 input [3:0] state;
-input [3:0] score0, score1, cnt0, cnt1;
+input [3:0] score0, score1, cnt0, cnt1, scores0, scores1;
 output [3:0] vgaRed, vgaGreen, vgaBlue;
 output hsync, vsync;
 
@@ -49,6 +50,7 @@ vga_pixel_gen display(
     .h_cnt(h_cnt), .v_cnt(v_cnt), .valid(valid), .clk(clk), .rst(rst),
     .t_chg(theme_c), .state(state), .ambiant(a_clk), .shine(s_clk),
     .score0(score0), .score1(score1), .cnt0(cnt0), .cnt1(cnt1),
+    .scores0(scores0), .scores1(scores1), 
     .vgaRed(vgaRed), .vgaGreen(vgaGreen), .vgaBlue(vgaBlue)
 );
 

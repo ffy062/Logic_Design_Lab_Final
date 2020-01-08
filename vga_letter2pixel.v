@@ -63,7 +63,7 @@ module vga_letter2pixel(
     seg9, sega, segb, segc, segd, sege, segf
     );
 input [4:0] letter;
-input [1:0]theme;
+input [3:0]theme;
 input ambiant, shine, clk, valid, steady;
 output reg[11:0] seg0, seg1, seg2, seg3, seg4, seg5, seg6, seg7, seg8;
 output reg[11:0] seg9, sega, segb, segc, segd, sege, segf;
@@ -73,7 +73,7 @@ reg [11:0] backgrond, wcolor1;
 
 always@(posedge clk) begin
     case(theme)
-        2'b00: begin
+        0: begin
             backgrond <= 12'h000;
             if(ambiant == 1'b1 && valid == 1'b1) begin
                 wcolor1 <= (wcolor1[11:4] != 8'hff)? 12'hfff: wcolor1 - 12'h001;
@@ -87,7 +87,7 @@ always@(posedge clk) begin
                 end
             end
         end
-        2'b01: begin
+        1: begin
             backgrond <= 12'hfff;
             if(ambiant == 1'b1) begin
                 wcolor1 <= (wcolor1[11:4] != 8'h00)? 12'h000: wcolor1 + 12'h001;
@@ -101,7 +101,7 @@ always@(posedge clk) begin
                 end
             end
         end
-        2'b10: begin
+        2: begin
             backgrond <= 12'he7d;
             if(ambiant == 1'b1) begin
                 wcolor1 <= wcolor1 + 12'h001; 
@@ -366,6 +366,24 @@ always@(*) begin
             seg3 = backgrond;
             seg4 = backgrond;
             seg5 = backgrond;
+            seg6 = backgrond;
+            seg7 = backgrond;
+            seg8 = backgrond;
+            seg9 = backgrond;
+            sega = backgrond;
+            segb = backgrond;
+            segc = backgrond;
+            segd = backgrond;
+            sege = wcolor1;
+            segf = wcolor1;
+        end
+         `U: begin
+            seg0 = backgrond;
+            seg1 = wcolor1;
+            seg2 = wcolor1;
+            seg3 = wcolor1;
+            seg4 = wcolor1;
+            seg5 = wcolor1;
             seg6 = backgrond;
             seg7 = backgrond;
             seg8 = backgrond;

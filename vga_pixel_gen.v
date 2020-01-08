@@ -59,21 +59,24 @@
 `define lose 4'd8
 `define finish 4'd9
 `define go 4'd10
+`define wait_slave 4'd11
+`define compete 4'd12
 
 
 module vga_pixel_gen(
     h_cnt, v_cnt, valid, t_chg, ambiant, shine, clk, rst,  
     state, score0, score1, cnt0, cnt1,
+    scores0, scores1, 
     vgaRed, vgaGreen, vgaBlue
     );
 
     input [9:0] h_cnt, v_cnt;
     input valid, ambiant, shine, clk, t_chg, rst;
     input [3:0] state;
-    input [3:0] score0, score1, cnt0, cnt1;
+    input [3:0] score0, score1, cnt0, cnt1, scores0, scores1;
     output reg [3:0] vgaRed, vgaGreen, vgaBlue;
 
-    wire [1:0] theme;
+    wire [3:0] theme;
 
 
     wire [9:0] DRH0, DRH1, DRH2, DRH3, DV0, DV1, DV2, DV3, DV4, DV5;
@@ -109,11 +112,17 @@ module vga_pixel_gen(
     wire [9:0] P0V0, P0V1, P0V2, P0V3, P0V4, P0V5;  
 
 
+    wire [9:0] Y0H0, Y0H1, Y0H2, Y0H3, Y1H0, Y1H1, Y1H2, Y1H3, Y2H0, Y2H1, Y2H2, Y2H3;
     wire [9:0] F0H0, F0H1, F0H2, F0H3, F1H0, F1H1, F1H2, F1H3, F2H0, F2H1, F2H2, F2H3;
     wire [9:0] F3H0, F3H1, F3H2, F3H3, F0V0, F0V1, F0V2, F0V3, F0V4, F0V5;
+
+    wire [9:0] G0H0, G0H1,G0H1a, G0H2, G0H3, G1H0, G1H1, G1H2, G1H3;
+    wire [9:0] G0V0, G0V1, G0V2, G0V3, G0V4, G0V5;
  
     wire [11:0] seg_sr [8:0];
     wire [11:0] seg_sl [8:0];
+    wire [11:0] seg_ssr [8:0];
+    wire [11:0] seg_ssl [8:0];
     wire [11:0] seg_cnt0 [8:0];
     wire [11:0] seg_cnt1 [8:0];
     wire [11:0] seg_la [15:0];
@@ -125,6 +134,7 @@ module vga_pixel_gen(
     wire [11:0] seg_le [15:0];
     wire [11:0] seg_les [15:0];
     wire [11:0] seg_lea [15:0];
+    wire [11:0] seg_lg [15:0];
     wire [11:0] seg_li [15:0];
     wire [11:0] seg_lk [15:0];
     wire [11:0] seg_lks [15:0];
@@ -388,10 +398,25 @@ module vga_pixel_gen(
     assign PbH2 = 472;
     assign PbH3 = 480;
 
-    assign F0H0 = 215; // pass letter p,  lose letter l
-    assign F0H1 = 221; // height: 80 width: 40 bar width: 6
-    assign F0H2 = 249;
-    assign F0H3 = 255;
+    assign Y0H0 = 155; //you letter y
+    assign Y0H1 = 161; // height: 80 width: 40 bar width: 6
+    assign Y0H2 = 189;
+    assign Y0H3 = 195;
+    
+    assign Y1H0 = 205; //you letter o
+    assign Y1H1 = 211; // height: 80 width: 40 bar width: 6
+    assign Y1H2 = 239;
+    assign Y1H3 = 245;
+
+    assign Y2H0 = 255; //you letter u
+    assign Y2H1 = 261; // height: 80 width: 40 bar width: 6
+    assign Y2H2 = 289;
+    assign Y2H3 = 295;
+
+    assign F0H0 = 325; // pass letter p,  lose letter l
+    assign F0H1 = 331; // height: 80 width: 40 bar width: 6
+    assign F0H2 = 359;
+    assign F0H3 = 365;
     assign F0V0 = 200;
     assign F0V1 = 206;
     assign F0V2 = 237;
@@ -399,33 +424,50 @@ module vga_pixel_gen(
     assign F0V4 = 274;
     assign F0V5 = 280;
 
-    assign F1H0 = 265; // pass letter a,  lose letter o
-    assign F1H1 = 271; // height: 80 width: 40 bar width: 6
-    assign F1H2 = 299;
-    assign F1H3 = 305;
+    assign F1H0 = 375; // pass letter a,  lose letter o
+    assign F1H1 = 381; // height: 80 width: 40 bar width: 6
+    assign F1H2 = 409;
+    assign F1H3 = 415;
      
-    assign F2H0 = 315; // pass letter s0,  lose letter s
-    assign F2H1 = 321; // height: 80 width: 40 bar width: 6
-    assign F2H2 = 349;
-    assign F2H3 = 355;
+    assign F2H0 = 425; // pass letter s0,  lose letter s
+    assign F2H1 = 431; // height: 80 width: 40 bar width: 6
+    assign F2H2 = 459;
+    assign F2H3 = 465;
 
-    assign F3H0 = 365; // pass letter s1,  lose letter e
-    assign F3H1 = 371; // height: 80 width: 40 bar width: 6
-    assign F3H2 = 399;
-    assign F3H3 = 405;
+    assign F3H0 = 475; // pass letter s1,  lose letter e
+    assign F3H1 = 481; // height: 80 width: 40 bar width: 6
+    assign F3H2 = 509;
+    assign F3H3 = 515;
+
+    assign G0H0 = 270; // go letter g
+    assign G0H1 = 276; // height: 80 width: 40 bar width: 6
+    assign G0H1a = 290;
+    assign G0H2 = 304;
+    assign G0H3 = 310;
+    assign G0V0 = 250;
+    assign G0V1 = 256;
+    assign G0V2 = 287;
+    assign G0V3 = 293;
+    assign G0V4 = 324;
+    assign G0V5 = 330;
+
+    assign G0H0 = 330; // go letter o
+    assign G0H1 = 336; // height: 80 width: 40 bar width: 6
+    assign G0H2 = 364;
+    assign G0H3 = 370;
 
     // theme control 
     vga_theme_ctrl theme_ctrl(.clk(clk), .rst(rst), .chg(t_chg), .theme(theme)); 
     
     always@(*) begin
     case(theme)
-        2'b00: begin
+        4'd0: begin
             backgrond = 12'h000;
         end
-        2'b01: begin
+        4'd1: begin
             backgrond = 12'hfff;
         end
-        2'b10: begin
+        4'd2: begin
             backgrond = 12'he7d;
         end
         default: begin
@@ -446,6 +488,18 @@ module vga_pixel_gen(
         .seg0(seg_sl[0]), .seg1(seg_sl[1]), .seg2(seg_sl[2]),
         .seg3(seg_sl[3]), .seg4(seg_sl[4]), .seg5(seg_sl[5]), .seg6(seg_sl[6]),
         .seg7(seg_sl[7]), .seg8(seg_sl[8])
+        );
+    vga_num2pixel n2p_ssr(
+        .num(scores0), .theme(theme),
+        .seg0(seg_ssr[0]),.seg1(seg_ssr[1]), .seg2(seg_ssr[2]),
+        .seg3(seg_ssr[3]), .seg4(seg_ssr[4]), .seg5(seg_ssr[5]), .seg6(seg_ssr[6]),
+        .seg7(seg_ssr[7]), .seg8(seg_ssr[8])
+        );
+     vga_num2pixel n2p_ssl(
+        .num(scores1), .theme(theme),
+        .seg0(seg_ssl[0]), .seg1(seg_ssl[1]), .seg2(seg_ssl[2]),
+        .seg3(seg_ssl[3]), .seg4(seg_ssl[4]), .seg5(seg_ssl[5]), .seg6(seg_ssl[6]),
+        .seg7(seg_ssl[7]), .seg8(seg_ssl[8])
         );
      vga_num2pixel n2p_cnt0(
         .num(cnt0), .theme(theme),
@@ -532,6 +586,30 @@ module vga_pixel_gen(
         .seg4(seg_lp[4]), .seg5(seg_lp[5]), .seg6(seg_lp[6]), .seg7(seg_lp[7]),
         .seg8(seg_lp[8]), .seg9(seg_lp[9]), .sega(seg_lp[10]), .segb(seg_lp[11]),
         .segc(seg_lp[12]), .segd(seg_lp[13]), .sege(seg_lp[14]), .segf(seg_lp[15])
+    );
+    vga_letter2pixel l2p_ll(
+        .letter(`L), .theme(theme), .steady(1'b1), 
+        .ambiant(1'b0), .shine(1'b0), .clk(clk | t_chg),  .valid(valid),
+        .seg0(seg_ll[0]), .seg1(seg_ll[1]), .seg2(seg_ll[2]), .seg3(seg_ll[3]),
+        .seg4(seg_ll[4]), .seg5(seg_ll[5]), .seg6(seg_ll[6]), .seg7(seg_ll[7]),
+        .seg8(seg_ll[8]), .seg9(seg_ll[9]), .sega(seg_ll[10]), .segb(seg_ll[11]),
+        .segc(seg_ll[12]), .segd(seg_ll[13]), .sege(seg_ll[14]), .segf(seg_ll[15])
+    );
+    vga_letter2pixel l2p_la(
+        .letter(`A), .theme(theme), .steady(1'b1), 
+        .ambiant(1'b0), .shine(1'b0), .clk(clk | t_chg),  .valid(valid),
+        .seg0(seg_la[0]), .seg1(seg_la[1]), .seg2(seg_la[2]), .seg3(seg_la[3]),
+        .seg4(seg_la[4]), .seg5(seg_la[5]), .seg6(seg_la[6]), .seg7(seg_la[7]),
+        .seg8(seg_la[8]), .seg9(seg_la[9]), .sega(seg_la[10]), .segb(seg_la[11]),
+        .segc(seg_la[12]), .segd(seg_la[13]), .sege(seg_la[14]), .segf(seg_la[15])
+    );
+    vga_letter2pixel l2p_lg(
+        .letter(`G), .theme(theme), .steady(1'b1), 
+        .ambiant(1'b0), .shine(1'b0), .clk(clk | t_chg),  .valid(valid),
+        .seg0(seg_lg[0]), .seg1(seg_lg[1]), .seg2(seg_lg[2]), .seg3(seg_lg[3]),
+        .seg4(seg_lg[4]), .seg5(seg_lg[5]), .seg6(seg_lg[6]), .seg7(seg_lg[7]),
+        .seg8(seg_lg[8]), .seg9(seg_lg[9]), .sega(seg_lg[10]), .segb(seg_lg[11]),
+        .segc(seg_lg[12]), .segd(seg_lg[13]), .sege(seg_lg[14]), .segf(seg_lg[15])
     );
 
     // letter to pixel shine
@@ -1668,10 +1746,350 @@ module vga_pixel_gen(
                 end
             end
             `win: begin
-                {vgaRed, vgaGreen, vgaBlue} = 12'hfd0;
+                if(v_cnt < F0V0) begin
+                    {vgaRed, vgaGreen, vgaBlue} = 12'hfd0;
+                end
+                else if(v_cnt < F0V1) begin
+                    if((h_cnt >= Y0H0 && h_cnt < Y0H1)||(h_cnt >= Y0H2 && h_cnt < Y0H3)) begin
+                        {vgaRed, vgaGreen, vgaBlue} = 12'h000;
+                    end
+                    else if(h_cnt >= Y1H0 && h_cnt < Y1H3)begin
+                        {vgaRed, vgaGreen, vgaBlue} = 12'h000;
+                    end
+                    else if((h_cnt >= Y2H0 && h_cnt < Y2H1)||(h_cnt >= Y2H2 && h_cnt < Y2H3)) begin
+                        {vgaRed, vgaGreen, vgaBlue} = 12'h000;
+                    end
+                    else if(h_cnt >= F0H0 && h_cnt < F0H3)begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lp[0];
+                    end
+                    else if(h_cnt >= F1H0 && h_cnt < F1H3) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_la[0];
+                    end
+                    else if(h_cnt >= F2H0 && h_cnt < F2H3) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_ls[0];
+                    end
+                    else if(h_cnt >= F3H0 && h_cnt < F3H3) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_ls[0];
+                    end
+                    else begin
+                        {vgaRed, vgaGreen, vgaBlue} = 12'hfd0;
+                    end
+                end
+                else if(v_cnt < F0V2) begin
+                    if((h_cnt >= Y0H0 && h_cnt < Y0H1)||(h_cnt >= Y0H2 && h_cnt < Y0H3)) begin
+                        {vgaRed, vgaGreen, vgaBlue} = 12'h000;
+                    end
+                    else if((h_cnt >= Y1H0 && h_cnt < Y1H1)||(h_cnt >= Y1H2 && h_cnt < Y1H3))begin
+                        {vgaRed, vgaGreen, vgaBlue} = 12'h000;
+                    end
+                    else if((h_cnt >= Y2H0 && h_cnt < Y2H1)||(h_cnt >= Y2H2 && h_cnt < Y2H3)) begin
+                        {vgaRed, vgaGreen, vgaBlue} = 12'h000;
+                    end
+                    else if((h_cnt >= F0H0 && h_cnt < F0H1)||(h_cnt >= F0H2 && h_cnt <F0H3))begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lp[5];
+                    end
+                    else if((h_cnt >= F1H0 && h_cnt < F1H1)||(h_cnt >= F1H2 && h_cnt <F1H3)) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_la[5];
+                    end
+                    else if(h_cnt >= F2H0 && h_cnt < F2H1) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_ls[5];
+                    end
+                    else if(h_cnt >= F3H0 && h_cnt < F3H1) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_ls[5];
+                    end
+                    else begin
+                        {vgaRed, vgaGreen, vgaBlue} = 12'hfd0;
+                    end
+                end
+                else if(v_cnt < F0V3) begin
+                    if(h_cnt >= Y0H0 && h_cnt < Y0H3) begin
+                        {vgaRed, vgaGreen, vgaBlue} = 12'h000;
+                    end
+                    else if((h_cnt >= Y1H0 && h_cnt < Y1H1)||(h_cnt >= Y1H2 && h_cnt < Y1H3))begin
+                        {vgaRed, vgaGreen, vgaBlue} = 12'h000;
+                    end
+                    else if((h_cnt >= Y2H0 && h_cnt < Y2H1)||(h_cnt >= Y2H2 && h_cnt < Y2H3)) begin
+                        {vgaRed, vgaGreen, vgaBlue} = 12'h000;
+                    end
+                    else if(h_cnt >= F0H0 && h_cnt < F0H3)begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lp[0];
+                    end
+                    else if(h_cnt >= F1H0 && h_cnt < F1H3) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_la[0];
+                    end
+                    else if(h_cnt >= F2H0 && h_cnt < F2H3) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_ls[0];
+                    end
+                    else if(h_cnt >= F3H0 && h_cnt < F3H3) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_ls[0];
+                    end
+                    else begin
+                        {vgaRed, vgaGreen, vgaBlue} = 12'hfd0;
+                    end
+                end
+                else if(v_cnt < F0V4) begin
+                    if(h_cnt >= Y0H2 && h_cnt < Y0H3) begin
+                        {vgaRed, vgaGreen, vgaBlue} = 12'h000;
+                    end
+                    else if((h_cnt >= Y1H0 && h_cnt < Y1H1)||(h_cnt >= Y1H2 && h_cnt < Y1H3))begin
+                        {vgaRed, vgaGreen, vgaBlue} = 12'h000;
+                    end
+                    else if((h_cnt >= Y2H0 && h_cnt < Y2H1)||(h_cnt >= Y2H2 && h_cnt < Y2H3)) begin
+                        {vgaRed, vgaGreen, vgaBlue} = 12'h000;
+                    end
+                    else if(h_cnt >= F0H0 && h_cnt < F0H1)begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lp[5];
+                    end
+                    else if((h_cnt >= F1H0 && h_cnt < F1H1)||(h_cnt >= F1H2 && h_cnt <F1H3)) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_la[5];
+                    end
+                    else if(h_cnt >= F2H2 && h_cnt < F2H3) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_ls[5];
+                    end
+                    else if(h_cnt >= F3H2 && h_cnt < F3H3) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_ls[5];
+                    end
+                    else begin
+                        {vgaRed, vgaGreen, vgaBlue} = 12'hfd0;
+                    end
+                end
+                else if(v_cnt < F0V5) begin
+                    if(h_cnt >= Y0H0 && h_cnt < Y0H3) begin
+                        {vgaRed, vgaGreen, vgaBlue} = 12'h000;
+                    end
+                    else if(h_cnt >= Y1H0 && h_cnt < Y1H3)begin
+                        {vgaRed, vgaGreen, vgaBlue} = 12'h000;
+                    end
+                    else if(h_cnt >= Y2H0 && h_cnt < Y2H3) begin
+                        {vgaRed, vgaGreen, vgaBlue} = 12'h000;
+                    end
+                    else if(h_cnt >= F0H0 && h_cnt < F0H1)begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lp[5];
+                    end
+                    else if((h_cnt >= F1H0 && h_cnt < F1H1)||(h_cnt >= F1H2 && h_cnt <F1H3)) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_la[5];
+                    end
+                    else if(h_cnt >= F2H0 && h_cnt < F2H3) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_ls[5];
+                    end
+                    else if(h_cnt >= F3H0 && h_cnt < F3H3) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_ls[5];
+                    end
+                    else begin
+                        {vgaRed, vgaGreen, vgaBlue} = 12'hfd0;
+                    end
+                end
+                else begin
+                    {vgaRed, vgaGreen, vgaBlue} = 12'hfd0;
+                end
+
             end
             `lose: begin
-                {vgaRed, vgaGreen, vgaBlue} = 12'h000;
+                if(v_cnt < F0V0) begin
+                    {vgaRed, vgaGreen, vgaBlue} = 12'h000;
+                end
+                else if(v_cnt < F0V1) begin
+                    if((h_cnt >= Y0H0 && h_cnt < Y0H1)||(h_cnt >= Y0H2 && h_cnt < Y0H3)) begin
+                        {vgaRed, vgaGreen, vgaBlue} = 12'hfff;
+                    end
+                    else if(h_cnt >= Y1H0 && h_cnt < Y1H3)begin
+                        {vgaRed, vgaGreen, vgaBlue} = 12'hfff;
+                    end
+                    else if((h_cnt >= Y2H0 && h_cnt < Y2H1)||(h_cnt >= Y2H2 && h_cnt < Y2H3)) begin
+                        {vgaRed, vgaGreen, vgaBlue} = 12'hfff;
+                    end
+                    else if(h_cnt >= F0H0 && h_cnt < F0H1)begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_ll[5];
+                    end
+                    else if(h_cnt >= F1H0 && h_cnt < F1H3) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lo[0];
+                    end
+                    else if(h_cnt >= F2H0 && h_cnt < F2H3) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_ls[0];
+                    end
+                    else if(h_cnt >= F3H0 && h_cnt < F3H3) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_le[0];
+                    end
+                    else begin
+                        {vgaRed, vgaGreen, vgaBlue} = 12'h000;
+                    end
+                end
+                else if(v_cnt < F0V2) begin
+                    if((h_cnt >= Y0H0 && h_cnt < Y0H1)||(h_cnt >= Y0H2 && h_cnt < Y0H3)) begin
+                        {vgaRed, vgaGreen, vgaBlue} = 12'hfff;
+                    end
+                    else if((h_cnt >= Y1H0 && h_cnt < Y1H1)||(h_cnt >= Y1H2 && h_cnt < Y1H3))begin
+                        {vgaRed, vgaGreen, vgaBlue} = 12'hfff;
+                    end
+                    else if((h_cnt >= Y2H0 && h_cnt < Y2H1)||(h_cnt >= Y2H2 && h_cnt < Y2H3)) begin
+                        {vgaRed, vgaGreen, vgaBlue} = 12'hfff;
+                    end
+                    else if(h_cnt >= F0H0 && h_cnt < F0H1)begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_ll[5];
+                    end
+                    else if((h_cnt >= F1H0 && h_cnt < F1H1)||(h_cnt >= F1H2 && h_cnt <F1H3)) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lo[5];
+                    end
+                    else if(h_cnt >= F2H0 && h_cnt < F2H1) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_ls[5];
+                    end
+                    else if(h_cnt >= F3H0 && h_cnt < F3H1) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_le[5];
+                    end
+                    else begin
+                        {vgaRed, vgaGreen, vgaBlue} = 12'h000;
+                    end
+                end
+                else if(v_cnt < F0V3) begin
+                    if(h_cnt >= Y0H0 && h_cnt < Y0H3) begin
+                        {vgaRed, vgaGreen, vgaBlue} = 12'hfff;
+                    end
+                    else if((h_cnt >= Y1H0 && h_cnt < Y1H1)||(h_cnt >= Y1H2 && h_cnt < Y1H3))begin
+                        {vgaRed, vgaGreen, vgaBlue} = 12'hfff;
+                    end
+                    else if((h_cnt >= Y2H0 && h_cnt < Y2H1)||(h_cnt >= Y2H2 && h_cnt < Y2H3)) begin
+                        {vgaRed, vgaGreen, vgaBlue} = 12'hfff;
+                    end
+                    else if(h_cnt >= F0H0 && h_cnt < F0H1)begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_ll[5];
+                    end
+                    else if((h_cnt >= F1H0 && h_cnt < F1H1)||(h_cnt >= F1H2 && h_cnt <F1H3)) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lo[0];
+                    end
+                    else if(h_cnt >= F2H0 && h_cnt < F2H3) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_ls[0];
+                    end
+                    else if(h_cnt >= F3H0 && h_cnt < F3H3) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_le[0];
+                    end
+                    else begin
+                        {vgaRed, vgaGreen, vgaBlue} = 12'h000;
+                    end
+                end
+                else if(v_cnt < F0V4) begin
+                    if(h_cnt >= Y0H2 && h_cnt < Y0H3) begin
+                        {vgaRed, vgaGreen, vgaBlue} = 12'hfff;
+                    end
+                    else if((h_cnt >= Y1H0 && h_cnt < Y1H1)||(h_cnt >= Y1H2 && h_cnt < Y1H3))begin
+                        {vgaRed, vgaGreen, vgaBlue} = 12'hfff;
+                    end
+                    else if((h_cnt >= Y2H0 && h_cnt < Y2H1)||(h_cnt >= Y2H2 && h_cnt < Y2H3)) begin
+                        {vgaRed, vgaGreen, vgaBlue} = 12'hfff;
+                    end
+                    else if(h_cnt >= F0H0 && h_cnt < F0H1)begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_ll[4];
+                    end
+                    else if((h_cnt >= F1H0 && h_cnt < F1H1)||(h_cnt >= F1H2 && h_cnt <F1H3)) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lo[5];
+                    end
+                    else if(h_cnt >= F2H2 && h_cnt < F2H3) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_ls[2];
+                    end
+                    else if(h_cnt >= F3H0 && h_cnt < F3H1) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_le[4];
+                    end
+                    else begin
+                        {vgaRed, vgaGreen, vgaBlue} = 12'h000;
+                    end
+                end
+                else if(v_cnt < F0V5) begin
+                    if(h_cnt >= Y0H0 && h_cnt < Y0H3) begin
+                        {vgaRed, vgaGreen, vgaBlue} = 12'hfff;
+                    end
+                    else if(h_cnt >= Y1H0 && h_cnt < Y1H3)begin
+                        {vgaRed, vgaGreen, vgaBlue} = 12'hfff;
+                    end
+                    else if(h_cnt >= Y2H0 && h_cnt < Y2H3) begin
+                        {vgaRed, vgaGreen, vgaBlue} = 12'hfff;
+                    end
+                    else if(h_cnt >= F0H0 && h_cnt < F0H3)begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_ll[3];
+                    end
+                    else if(h_cnt >= F1H0 && h_cnt < F1H3) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lo[3];
+                    end
+                    else if(h_cnt >= F2H0 && h_cnt < F2H3) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_ls[3];
+                    end
+                    else if(h_cnt >= F3H0 && h_cnt < F3H3) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_le[3];
+                    end
+                    else begin
+                        {vgaRed, vgaGreen, vgaBlue} = 12'h000;
+                    end
+                end
+                else begin
+                    {vgaRed, vgaGreen, vgaBlue} = 12'h000;
+                end
+            end
+            `go: begin
+                if(v_cnt < G0V0) begin
+                    {vgaRed, vgaGreen, vgaBlue} = backgrond;
+                end
+                else if(v_cnt < G0V1) begin
+                    if(h_cnt >= G0H0 && h_cnt < G0H3) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lg[0];
+                    end
+                    else if(h_cnt >= G1H0 && h_cnt < G1H3) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lo[0];
+                    end
+                    else begin
+                        {vgaRed, vgaGreen, vgaBlue} = backgrond;
+                    end
+                end
+                else if(v_cnt < G0V2) begin
+                    if(h_cnt >= G0H0 && h_cnt < G0H1) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lg[0];
+                    end
+                    else if((h_cnt >= G1H0 && h_cnt < G1H1)||(h_cnt >= G1H2 && h_cnt < G1H3)) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lo[0];
+                    end
+                    else begin
+                        {vgaRed, vgaGreen, vgaBlue} = backgrond;
+                    end
+                end
+                else if(v_cnt < G0V3) begin
+                    if((h_cnt >= G0H0 && h_cnt < G0H1)||(h_cnt >= G0H1a && h_cnt < G0H3)) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lg[0];
+                    end
+                    else if((h_cnt >= G1H0 && h_cnt < G1H1)||(h_cnt >= G1H2 && h_cnt < G1H3)) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lo[0];
+                    end
+                    else begin
+                        {vgaRed, vgaGreen, vgaBlue} = backgrond;
+                    end
+                end
+                else if(v_cnt < G0V4) begin
+                    if((h_cnt >= G0H0 && h_cnt < G0H1)||(h_cnt >= G0H2 && h_cnt < G0H3)) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lg[0];
+                    end
+                    else if((h_cnt >= G1H0 && h_cnt < G1H1)||(h_cnt >= G1H2 && h_cnt < G1H3)) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lo[0];
+                    end
+                    else begin
+                        {vgaRed, vgaGreen, vgaBlue} = backgrond;
+                    end
+                end
+                else if(v_cnt < G0V5) begin
+                    if(h_cnt >= G0H0 && h_cnt < G0H3) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lg[0];
+                    end
+                    else if(h_cnt >= G1H0 && h_cnt < G1H3) begin
+                        {vgaRed, vgaGreen, vgaBlue} = seg_lo[0];
+                    end
+                    else begin
+                        {vgaRed, vgaGreen, vgaBlue} = backgrond;
+                    end
+                end
+                else begin
+                    {vgaRed, vgaGreen, vgaBlue} = backgrond;
+                end
+            end
+            `compete: begin
+                {vgaRed, vgaGreen, vgaBlue} = backgrond;
+            end
+            `wait_slave: begin
+                {vgaRed, vgaGreen, vgaBlue} = backgrond;
             end
             default: begin
                 {vgaRed, vgaGreen, vgaBlue} = backgrond;

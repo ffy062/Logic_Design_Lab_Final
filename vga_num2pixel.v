@@ -33,22 +33,22 @@ module vga_num2pixel(
     seg0, seg1, seg2, seg3, seg4, seg5, seg6, seg7, seg8
     );
 input [3:0] num;
-input [1:0] theme;
+input [3:0] theme;
 output reg [11:0] seg0, seg1, seg2, seg3, seg4, seg5, seg6, seg7, seg8;
 
 reg [11:0] backgrond, wcolor1;
 
 always@(*) begin
     case(theme)
-        2'b00: begin
+        0: begin
             backgrond = 12'h000;
             wcolor1 = 12'hfff;
         end
-        2'b01: begin
+        1: begin
             backgrond = 12'hfff;
             wcolor1 = 12'h000;
         end
-        2'b10: begin
+        2: begin
             backgrond = 12'he7d;
             wcolor1 = 12'h8f0;
         end
@@ -102,7 +102,7 @@ always@(*) begin
             seg4 = backgrond;
             seg5 = backgrond;
             seg6 = wcolor1;
-            seg7 = backgrond;
+            seg7 = wcolor1;
             seg8 = wcolor1;
         end
         4'd4: begin
