@@ -38,7 +38,7 @@ always@(posedge clk) begin
 end
 
 always @ (*) begin
-    if(goal == 1'b1) begin
+    if(goal == 1'b1 && score0 != 9 && score1 != 9) begin
         next_score0 = (score0 == 4'd9)? 4'd0 : score0 + 4'd1;
         next_score1 = (score0 == 4'd9)? score1 + 4'd1 : score1;
     end
