@@ -43,7 +43,7 @@ always @ (*) begin
             next_score0 = score0;
             next_score1 = score1;
         end
-        else 
+        else begin
         next_score0 = (score0 == 4'd9)? 4'd0 : score0 + 4'd1;
         next_score1 = (score0 == 4'd9)? score1 + 4'd1 : score1;
         end
