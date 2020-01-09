@@ -49,8 +49,7 @@ vga_controll vga_ctrl(
 vga_pixel_gen display(
     .h_cnt(h_cnt), .v_cnt(v_cnt), .valid(valid), .clk(clk), .rst(rst),
     .t_chg(theme_c), .state(state), .ambiant(a_clk), .shine(s_clk),
-    .score0(score0), .score1(score1), .cnt0(cnt0), .cnt1(cnt1),
-    .scores0(scores0), .scores1(scores1), 
+    .score0(score0), .score1(score1), .cnt0(cnt0), .cnt1(cnt1), 
     .vgaRed(vgaRed), .vgaGreen(vgaGreen), .vgaBlue(vgaBlue)
 );
 

@@ -66,18 +66,29 @@
 module vga_pixel_gen(
     h_cnt, v_cnt, valid, t_chg, ambiant, shine, clk, rst,  
     state, score0, score1, cnt0, cnt1,
-    scores0, scores1, 
     vgaRed, vgaGreen, vgaBlue
     );
 
     input [9:0] h_cnt, v_cnt;
     input valid, ambiant, shine, clk, t_chg, rst;
     input [3:0] state;
-    input [3:0] score0, score1, cnt0, cnt1, scores0, scores1;
+    input [3:0] score0, score1, cnt0, cnt1;
     output reg [3:0] vgaRed, vgaGreen, vgaBlue;
 
     wire [3:0] theme;
+    wire max;
+    reg [3:0] pass;
+    
+    assign max = (score0 == 9 && score1 == 9)? 1'b1 : 1'b0;
 
+    always@(*) begin
+        case(state)
+            `stage1: pass = (score1 > 1 || (score1 == 1 && score0 >= 5))? theme + 3 : theme;
+            `stage2: pass = (score1 >= 4 && score0 >= 0)? theme + 3 : theme;
+            `stage3: pass = (score1 > 8 || (score1 == 8 && score0 >= 5))? theme + 3 : theme;
+            default: pass = theme;
+        endcase
+    end
 
     wire [9:0] DRH0, DRH1, DRH2, DRH3, DV0, DV1, DV2, DV3, DV4, DV5;
     wire [9:0] DLH0, DLH1, DLH2, DLH3;
@@ -121,8 +132,6 @@ module vga_pixel_gen(
  
     wire [11:0] seg_sr [8:0];
     wire [11:0] seg_sl [8:0];
-    wire [11:0] seg_ssr [8:0];
-    wire [11:0] seg_ssl [8:0];
     wire [11:0] seg_cnt0 [8:0];
     wire [11:0] seg_cnt1 [8:0];
     wire [11:0] seg_la [15:0];
@@ -451,10 +460,10 @@ module vga_pixel_gen(
     assign G0V4 = 324;
     assign G0V5 = 330;
 
-    assign G0H0 = 330; // go letter o
-    assign G0H1 = 336; // height: 80 width: 40 bar width: 6
-    assign G0H2 = 364;
-    assign G0H3 = 370;
+    assign G1H0 = 330; // go letter o
+    assign G1H1 = 336; // height: 80 width: 40 bar width: 6
+    assign G1H2 = 364;
+    assign G1H3 = 370;
 
     // theme control 
     vga_theme_ctrl theme_ctrl(.clk(clk), .rst(rst), .chg(t_chg), .theme(theme)); 
@@ -478,37 +487,25 @@ module vga_pixel_gen(
 
     // number to pixel color
     vga_num2pixel n2p_sr(
-        .num(score0), .theme(theme),
+        .num(score0), .theme(pass), .max(max), 
         .seg0(seg_sr[0]),.seg1(seg_sr[1]), .seg2(seg_sr[2]),
         .seg3(seg_sr[3]), .seg4(seg_sr[4]), .seg5(seg_sr[5]), .seg6(seg_sr[6]),
         .seg7(seg_sr[7]), .seg8(seg_sr[8])
         );
      vga_num2pixel n2p_sl(
-        .num(score1), .theme(theme),
+        .num(score1), .theme(pass), .max(max), 
         .seg0(seg_sl[0]), .seg1(seg_sl[1]), .seg2(seg_sl[2]),
         .seg3(seg_sl[3]), .seg4(seg_sl[4]), .seg5(seg_sl[5]), .seg6(seg_sl[6]),
         .seg7(seg_sl[7]), .seg8(seg_sl[8])
         );
-    vga_num2pixel n2p_ssr(
-        .num(scores0), .theme(theme),
-        .seg0(seg_ssr[0]),.seg1(seg_ssr[1]), .seg2(seg_ssr[2]),
-        .seg3(seg_ssr[3]), .seg4(seg_ssr[4]), .seg5(seg_ssr[5]), .seg6(seg_ssr[6]),
-        .seg7(seg_ssr[7]), .seg8(seg_ssr[8])
-        );
-     vga_num2pixel n2p_ssl(
-        .num(scores1), .theme(theme),
-        .seg0(seg_ssl[0]), .seg1(seg_ssl[1]), .seg2(seg_ssl[2]),
-        .seg3(seg_ssl[3]), .seg4(seg_ssl[4]), .seg5(seg_ssl[5]), .seg6(seg_ssl[6]),
-        .seg7(seg_ssl[7]), .seg8(seg_ssl[8])
-        );
      vga_num2pixel n2p_cnt0(
-        .num(cnt0), .theme(theme),
+        .num(cnt0), .theme(theme), .max(1'b0), 
         .seg0(seg_cnt0[0]),.seg1(seg_cnt0[1]), .seg2(seg_cnt0[2]),
         .seg3(seg_cnt0[3]), .seg4(seg_cnt0[4]), .seg5(seg_cnt0[5]), .seg6(seg_cnt0[6]),
         .seg7(seg_cnt0[7]), .seg8(seg_cnt0[8])
         );
      vga_num2pixel n2p_cnt1(
-        .num(cnt1), .theme(theme),
+        .num(cnt1), .theme(theme), .max(1'b0), 
         .seg0(seg_cnt1[0]),.seg1(seg_cnt1[1]), .seg2(seg_cnt1[2]),
         .seg3(seg_cnt1[3]), .seg4(seg_cnt1[4]), .seg5(seg_cnt1[5]), .seg6(seg_cnt1[6]),
         .seg7(seg_cnt1[7]), .seg8(seg_cnt1[8])
