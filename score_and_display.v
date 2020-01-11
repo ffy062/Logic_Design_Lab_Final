@@ -20,8 +20,8 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module score_and_display(clk, goal, rst, dis_score, score0, score1);
-input clk, goal, dis_score, rst;
+module score_and_display(clk, goal, two,  rst, dis_score, score0, score1);
+input clk, goal, dis_score, rst, two;
 output reg [3:0] score0, score1;
 reg [3:0] next_score0, next_score1;
 
@@ -44,8 +44,24 @@ always @ (*) begin
             next_score1 = score1;
         end
         else begin
-        next_score0 = (score0 == 4'd9)? 4'd0 : score0 + 4'd1;
-        next_score1 = (score0 == 4'd9)? score1 + 4'd1 : score1;
+        if(two == 1) begin
+            if(score0 == 4'd8) begin
+                next_score0 = (score1 == 4'd9)? 4'd9 : 4'd0;
+                next_score1 = (score1 == 4'd9)? 4'd9 : score1 + 1;
+            end
+            else if(score0 == 4'd9) begin
+                next_score0 = (score0 == 4'd9)? 4'd9 : 4'd1;
+                next_score1 = (score1 == 4'd9)? 4'd9 : score1 + 1;
+            end
+            else begin
+                next_score0 = score0 + 4'd2;
+                next_score1 =  score1;    
+            end
+        end
+        else begin
+            next_score0 = (score0 == 4'd9)? 4'd0 : score0 + 4'd1;
+            next_score1 = (score0 == 4'd9)? score1 + 4'd1 : score1;
+        end
         end
     end
     else begin

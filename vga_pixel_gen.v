@@ -468,16 +468,31 @@ module vga_pixel_gen(
     // theme control 
     vga_theme_ctrl theme_ctrl(.clk(clk), .rst(rst), .chg(t_chg), .theme(theme)); 
     
-    always@(*) begin
+    always@(posedge clk) begin
     case(theme)
         4'd0: begin
-            backgrond = 12'h000;
+            if(cnt0 <= 5 && cnt1 == 0 && shine == 1) begin
+                    backgrond <= (backgrond == 12'h000)? 12'hf00 : 12'h000;
+            end
+            else begin
+                backgrond = 12'h000;
+            end
         end
         4'd1: begin
-            backgrond = 12'hfff;
+            if(cnt0 <= 5 && cnt1 == 0 && shine == 1) begin
+                    backgrond <= (backgrond == 12'hfff)? 12'hf00 : 12'hfff;
+            end
+            else begin
+                backgrond = 12'hfff;
+            end
         end
         4'd2: begin
-            backgrond = 12'he7d;
+            if(cnt0 <= 5 && cnt1 == 0 && shine == 1) begin
+                backgrond <= (backgrond == 12'he7d)? 12'hf00 : 12'he7d;
+            end
+            else begin
+                backgrond = 12'he7d;
+            end
         end
         default: begin
             backgrond = 12'h000;

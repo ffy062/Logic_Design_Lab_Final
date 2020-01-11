@@ -38,9 +38,9 @@ output pmod1, pmod2, pmod4;
 reg [3:0] state, n_state;
 reg [3:0] cnt_d0, cnt_d1, n_cnt_d0, n_cnt_d1;
 wire [3:0] score0, score1, scores0, scores1;
-wire en_cnt, en_goal, cnt_play, s_rst;
+wire en_cnt, en_goal, s_rst, start_play, two_pt;
 wire en_sgoal, dis_sscore;
-reg cnt_start, sp;
+reg cnt_start, sp, cnt_play;
 reg [2:0] stage, n_stage;
 
 
@@ -78,7 +78,7 @@ always@(*) begin
             n_stage = (score1 >= 4 && score0 >= 0)? 3'd3 : 3'd2;
         end
         `stage3: begin
-            n_stage = (score1 > 8 || (score1 == 8 && score0 >= 5))? 3'd4 : 3'd3;
+            n_stage = (score1 >= 8 && score0 >= 0)? 3'd4 : 3'd3;
         end
         `wait_slave: begin
             n_stage = 5;
@@ -254,24 +254,44 @@ end
 assign dis_score = (state == `rst || state == `b_rst)? 1'b0 : 1'b1;
 assign en_goal = ((state == `stage1 || state == `stage2 || state == `stage3 || state == `compete
         || state == `pmode) && goal == 1'b1 && sp == 1'b0)? 1'b1 : 1'b0;
-assign cnt_play = (cnt_start == 1'b1 && n_state == `b_play && sound == 1)? 1'b1 : 1'b0;
 assign s_rst = (state == `pmode && start == 1'b1)? 1'b1 : 1'b0;
 assign en_sgoal = ((state == `compete) && s_goal == 1'b1)? 1'b1 : 1'b0;
 assign dis_sscore = (state == `compete)? 1'b1 : 1'b0;
+assign start_play = (state == `b_play && n_state == `go)? 1'b1 : 1'b0;
+assign two_pt = (cnt_d0 <= 5 && cnt_d1 == 0)? 1'b1 : 1'b0;
+
+always@(*) begin
+    if(sound == 1'b1 && cnt_start == 1'b1) begin
+        if(state == `b_play || state == `stage1 || state == `stage2 || state == `stage3) begin
+            if(cnt_d0 <= 5 && cnt_d1 == 0) begin
+                cnt_play = 1;
+            end
+            else begin
+                cnt_play = 0;
+            end
+        end
+        else begin
+            cnt_play = 0;
+        end
+    end
+    else begin
+        cnt_play = 0;
+    end
+end
 
 // module for 1 sec counter, currnet score to seven segment, audio top module
 counter one_sec(.clk(clk), .start(cnt_start), .stop(sp), .out(en_cnt));
 score_and_display sad(
-    .clk(clk), .goal(en_goal), .rst(s_rst),
+    .clk(clk), .goal(en_goal), .rst(s_rst), .two(two_pt), 
     .dis_score(dis_score), .score0(score0), .score1(score1)
     );
 
 score_and_display s_sad(
-    .clk(clk), .goal(en_sgoal), .rst(1'b0),
+    .clk(clk), .goal(en_sgoal), .rst(1'b0), .two(two_pt), 
     .dis_score(dis_sscore), .score0(scores0), .score1(scores1)
     );
 audio_top audio(
-    .clk(clk), .rst(rst), .goal((en_goal||en_sgoal) & sound), 
+    .clk(clk), .rst(rst), .goal((en_goal||en_sgoal) & sound), .start(start_play), 
     .cnt(cnt_play), .pmod_1(pmod1), .pmod_2(pmod2), .pmod_4(pmod4)
     );
 
